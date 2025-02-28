@@ -1,0 +1,27 @@
+package com.domhub.api.controller;
+
+import com.domhub.api.model.Student;
+import com.domhub.api.service.StudentService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/students")
+@CrossOrigin(origins = "*") // Cho phép frontend gọi API từ bất kỳ domain nào
+public class StudentController {
+    private final StudentService studentService;
+
+    public StudentController(StudentService studentService) {
+        this.studentService = studentService;
+    }
+
+    // ✅ API fillAll - Lấy danh sách tất cả sinh viên
+    @GetMapping("/findAll")
+    public ResponseEntity<List<Student>> findAll() {
+        List<Student> students = studentService.getAllStudents();
+        return ResponseEntity.ok(students);
+    }
+
+}
