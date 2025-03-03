@@ -16,7 +16,7 @@ public class RoomRental {
     private String id;
 
     @Column(nullable = false)
-    private String studentId;
+    private Integer studentId;
 
     @Column(nullable = false)
     private String roomId;

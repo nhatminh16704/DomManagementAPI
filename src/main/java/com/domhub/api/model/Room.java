@@ -1,13 +1,9 @@
 package com.domhub.api.model;
 
-
 import lombok.Getter;
 import lombok.Setter;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "room")
@@ -18,13 +14,14 @@ public class Room {
     @Id
     private String id;
 
-    @Column(nullable = false)
-    private String blockId;
+    @ManyToOne(fetch = FetchType.LAZY) // Tạo quan hệ với Block
+    @JoinColumn(name = "block_id", referencedColumnName = "id", nullable = false)
+    private Block block;
 
-    @Column(nullable = false)
-    private int type;
+    @ManyToOne(fetch = FetchType.LAZY) // Tạo quan hệ với TypeRoom
+    @JoinColumn(name = "type", referencedColumnName = "id", nullable = false)
+    private TypeRoom typeRoom;
 
     private long price;
-
     private int totalBeds;
 }

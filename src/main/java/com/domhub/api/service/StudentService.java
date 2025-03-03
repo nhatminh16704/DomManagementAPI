@@ -11,12 +11,11 @@ import java.util.List;
 public class StudentService {
     private final StudentRepository studentRepository;
 
-    // Constructor Injection (Spring tự động Inject Repository vào Service)
+
     public StudentService(StudentRepository studentRepository) {
         this.studentRepository = studentRepository;
     }
 
-    // Lấy danh sách tất cả sinh viên
     public List<Student> getAllStudents() {
         return studentRepository.findAll();
     }

@@ -4,6 +4,7 @@ package com.domhub.api.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import java.util.List;
 
 
 @Entity
@@ -21,6 +22,9 @@ public class Block {
     private TypeRoom type;
 
     private int totalRooms;
+
+    @OneToMany(mappedBy = "block", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Room> rooms;
 
     public enum TypeRoom {
         Nam, Nữ
