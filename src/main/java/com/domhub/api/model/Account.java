@@ -1,44 +1,36 @@
-package com.domhub.api.model;
+    package com.domhub.api.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Column;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+    import jakarta.persistence.*;
+    import lombok.*;
+    import org.springframework.security.core.GrantedAuthority;
+    import org.springframework.security.core.authority.SimpleGrantedAuthority;
+    import org.springframework.security.core.userdetails.UserDetails;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+    import java.util.Collection;
+    import java.util.Collections;
 
-import com.domhub.api.model.Role;
+    @Entity
+    @Table(name = "account")
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Getter
+    @Setter
+    public class Account{
 
-@Entity
-@Table(name = "account")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Getter
-@Setter
-public class Account {
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Integer id;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+        @Column(nullable = false, unique = true)
+        private String userName;
 
-    @Column(nullable = false, unique = true)
-    private String userName;
+        @Column(nullable = false)
+        private String password;
 
-    @Column(nullable = false)
-    private String password;
+        @ManyToOne
+        @JoinColumn(name = "role_id", nullable = false)
+        private Role role;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id", nullable = false)
-    private Role role;
 
-}
-
+    }

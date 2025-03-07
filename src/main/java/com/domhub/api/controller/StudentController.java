@@ -6,10 +6,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
+@PreAuthorize("hasRole('ADMIN')")
 @RequestMapping("/students")
-@CrossOrigin(origins = "*") // Cho phép frontend gọi API từ bất kỳ domain nào
 public class StudentController {
     private final StudentService studentService;
 

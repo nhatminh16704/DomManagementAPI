@@ -8,7 +8,11 @@ import com.domhub.api.model.Account;
 import com.domhub.api.model.Role;
 import com.domhub.api.repository.AccountRepository;
 import com.domhub.api.repository.RoleRepository;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+import com.domhub.api.util.JwtUtil;
 
 @Service
 public class AccountService {
@@ -16,6 +20,7 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
+    private final JwtUtil jwtUtil = new JwtUtil();
 
     public AccountService(AccountRepository accountRepository,
                           PasswordEncoder passwordEncoder,
@@ -38,10 +43,22 @@ public class AccountService {
         return accountRepository.save(account);
     }
 
-    public boolean login(String username, String password) {
+    public String login(String username, String password) {
         Optional<Account> accountOptional = accountRepository.findByUserName(username);
-        return accountOptional.map(account -> passwordEncoder.matches(password, account.getPassword()))
-                .orElse(false);
+        if (accountOptional.isPresent()) {
+            Account account = accountOptional.get();
+            if (passwordEncoder.matches(password, account.getPassword())) {
+                // Tạo JWT token với thông tin bổ sung
+                Map<String, Object> claims = new HashMap<>();
+                claims.put("id", account.getId());
+                claims.put("role", account.getRole().getRoleName());  // Giả sử bạn có đối tượng `Role` trong `Account`
+
+                // Tạo token JWT
+                String jwtToken = jwtUtil.generateToken(username, claims);
+                return jwtToken; // Trả về JWT
+            }
+        }
+        throw new RuntimeException("Invalid username or password");
     }
 }
 
