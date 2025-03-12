@@ -1,15 +1,11 @@
 package com.domhub.api.controller;
 
+import com.domhub.api.dto.request.AccountRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.domhub.api.model.Account;
 import com.domhub.api.service.AccountService;
-import java.util.Optional;
-
 import java.util.Map;
-
-
-import java.util.HashMap;
 
 @RestController
 @RequestMapping("/auth")
@@ -24,34 +20,25 @@ public class AuthController {
 
     // Tạo tài khoản mới
     @PostMapping("/register")
-    public ResponseEntity<Account> registerAccount(@RequestBody Map<String, String> request) {
-        String username = request.get("username");
-        String password = request.get("password");
-        String roleName = request.get("roleName");
+    public ResponseEntity<Account> registerAccount(@RequestBody AccountRequest request) {
 
-        Account newAccount = accountService.createAccount(username, password, roleName);
+        Account newAccount = accountService.createAccount(request);
         return ResponseEntity.ok(newAccount);
     }
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody Map<String, String> request) {
         try {
-            // Lấy username và password từ body request
             String username = request.get("username");
             String password = request.get("password");
 
-
-            // Gọi service để xác thực và tạo JWT
             String jwtToken = accountService.login(username, password);
 
-            // Trả về JWT trong response với status 200 (OK)
             return ResponseEntity.ok(jwtToken);
         } catch (RuntimeException e) {
-            // Xử lý lỗi từ AccountService (ví dụ: "Invalid username or password")
             return ResponseEntity.status(401).body(e.getMessage());
         }
     }
-
 
 
 }

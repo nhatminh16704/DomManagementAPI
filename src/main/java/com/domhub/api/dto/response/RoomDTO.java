@@ -1,4 +1,4 @@
-package com.domhub.api.dto;
+package com.domhub.api.dto.response;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -11,13 +11,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
     public class RoomDTO {
-
-        private String roomId;
+        private Integer id;
+        private String roomName;
         private long price;
-        private int totalBeds;
+        private int maxStudents;
         private String blockType;
         private String typeRoom;
-        private int availableBeds;
+        private int available;
 
     }
 

@@ -14,7 +14,9 @@ import java.util.List;
 public class Block {
 
     @Id
-    private String id;
+    Integer id;
+
+    private String blockName;
 
     @Column(nullable = false)
 
@@ -22,10 +24,7 @@ public class Block {
     private TypeRoom type;
 
     private int totalRooms;
-
-    @OneToMany(mappedBy = "block", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Room> rooms;
-
+    
     public enum TypeRoom {
         Nam, Nữ
     }

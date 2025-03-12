@@ -1,6 +1,6 @@
 package com.domhub.api.controller;
 
-import com.domhub.api.dto.RoomDTO;
+import com.domhub.api.dto.response.RoomDTO;
 import com.domhub.api.service.RoomService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,4 +23,6 @@ public class RoomController {
         List<RoomDTO> rooms = roomService.getAllRooms();
         return ResponseEntity.ok(rooms);
     }
+
+
 }

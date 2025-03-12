@@ -1,5 +1,6 @@
 package com.domhub.api.controller;
 
+import com.domhub.api.dto.response.StudentDTO;
 import com.domhub.api.model.Student;
 import com.domhub.api.service.StudentService;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,12 @@ public class StudentController {
     public ResponseEntity<List<Student>> findAll() {
         List<Student> students = studentService.getAllStudents();
         return ResponseEntity.ok(students);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<StudentDTO> getStudentById(@PathVariable Integer id) {
+        StudentDTO student = studentService.getStudentById(id);
+        return ResponseEntity.ok(student);
     }
 
 }

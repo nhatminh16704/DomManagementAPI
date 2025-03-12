@@ -12,7 +12,10 @@ import jakarta.persistence.*;
 public class Room {
 
     @Id
-    private String id;
+    private Integer id;
+
+    @Column(nullable = false, unique = true)
+    private String roomName;
 
     @ManyToOne(fetch = FetchType.LAZY) // Tạo quan hệ với Block
     @JoinColumn(name = "block_id", referencedColumnName = "id", nullable = false)
@@ -23,5 +26,6 @@ public class Room {
     private TypeRoom typeRoom;
 
     private long price;
-    private int totalBeds;
+    private int maxStudents;
+    private int available;
 }

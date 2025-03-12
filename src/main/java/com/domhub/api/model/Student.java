@@ -34,6 +34,7 @@ public class Student {
     private String email;
 
     private String hometown;
+    private Integer accountId;
 
     public enum Gender {
         Nam, Nữ

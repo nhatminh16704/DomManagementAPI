@@ -1,8 +1,7 @@
 package com.domhub.api.mapper;
 
-import com.domhub.api.dto.RoomDTO;
+import com.domhub.api.dto.response.RoomDTO;
 import com.domhub.api.model.Room;
-import com.domhub.api.service.RoomRentalService;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -10,23 +9,19 @@ import java.util.stream.Collectors;
 
 @Component
 public class RoomMapper {
-    private final RoomRentalService roomRentalService;
-
-    public RoomMapper(RoomRentalService roomRentalService) {
-        this.roomRentalService = roomRentalService;
-    }
 
     public RoomDTO toDTO(Room room) {
         RoomDTO roomDTO = new RoomDTO();
-        roomDTO.setRoomId(room.getId());
+        roomDTO.setId(room.getId());
+        roomDTO.setRoomName(room.getRoomName());
         roomDTO.setPrice(room.getPrice());
 
         // Lấy block type trực tiếp từ quan hệ
         roomDTO.setBlockType(room.getBlock().getType().toString());
 
-        // Số giường còn trống
-        roomDTO.setAvailableBeds(room.getTotalBeds() - roomRentalService.countByRoomId(room.getId()));
-        roomDTO.setTotalBeds(room.getTotalBeds());
+        roomDTO.setAvailable(room.getAvailable());
+
+        roomDTO.setMaxStudents(room.getMaxStudents());
 
         // Lấy type room name trực tiếp từ quan hệ
         roomDTO.setTypeRoom(room.getTypeRoom().getName());

@@ -1,6 +1,7 @@
 package com.domhub.api.service;
 
 
+import com.domhub.api.dto.request.AccountRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -30,14 +31,14 @@ public class AccountService {
         this.roleRepository = roleRepository;
     }
 
-    public Account createAccount(String username, String password, String roleName) {
-        String encodedPassword = passwordEncoder.encode(password);
+    public Account createAccount(AccountRequest request) {
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
 
         Account account = new Account();
-        account.setUserName(username);
+        account.setUserName(request.getUserName());
         account.setPassword(encodedPassword);
 
-        Role role = roleRepository.findByRoleName(roleName);
+        Role role = roleRepository.findByRoleName(request.getRole());
         account.setRole(role);
 
         return accountRepository.save(account);

@@ -4,7 +4,8 @@ package com.domhub.api.model;
 import lombok.Getter;
 import lombok.Setter;
 import jakarta.persistence.*;
-import java.util.Date;
+
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "roomrental")
@@ -13,19 +14,20 @@ import java.util.Date;
 public class RoomRental {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
     @Column(nullable = false)
     private Integer studentId;
 
     @Column(nullable = false)
-    private String roomId;
+    private Integer roomId;
 
     @Temporal(TemporalType.DATE)
-    private Date startDate;
+    private LocalDate startDate;
 
     @Temporal(TemporalType.DATE)
-    private Date endDate;
+    private LocalDate endDate;
 
     private double price;
 
@@ -33,7 +35,7 @@ public class RoomRental {
     private Status status;
 
     public enum Status {
-        ACTIVE, EXPIRED, PENDING
+        ACTIVE, EXPIRED, PENDING, UNPAID
     }
 }
 
