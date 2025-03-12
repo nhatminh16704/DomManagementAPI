@@ -18,6 +18,5 @@ import lombok.NoArgsConstructor;
         private String blockType;
         private String typeRoom;
         private int available;
-
     }
 

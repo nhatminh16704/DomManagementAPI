@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service;
 import com.domhub.api.dto.response.RoomDTO;
 import com.domhub.api.model.RoomRental;
 import com.domhub.api.repository.RoomRentalRepository;
+import com.domhub.api.dto.response.RoomDetailDTO;
+
+
 
 
 import java.util.List;
@@ -74,6 +77,12 @@ public class RoomService {
             roomRentalRepository.deleteById(rentalId);
         }
 
+    }
+
+    public RoomDetailDTO getRoomDetail(Integer roomId) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new RuntimeException("Room not found with id: " + roomId));
+        return roomMapper.toRoomDetailDTO(room); // Convert entity -> DTO
     }
 
 

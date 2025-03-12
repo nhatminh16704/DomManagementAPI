@@ -18,7 +18,6 @@ public class TypeRoom {
     @Column(nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "typeRoom", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Room> rooms;
+    private String description;
 
 }
