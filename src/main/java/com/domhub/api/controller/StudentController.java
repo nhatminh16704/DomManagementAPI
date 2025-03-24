@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
 import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
@@ -31,5 +32,16 @@ public class StudentController {
         StudentDTO student = studentService.getStudentById(id);
         return ResponseEntity.ok(student);
     }
+
+    @PostMapping("/create")
+    public ResponseEntity<String> createStudent(@RequestBody Student student) {
+        try {
+            Student newStudent = studentService.createStudent(student);
+            return ResponseEntity.ok("Created student with id " + newStudent.getId());
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 
 }

@@ -2,6 +2,7 @@ package com.domhub.api.service;
 
 
 import com.domhub.api.dto.request.AccountRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,10 @@ import java.util.Map;
 import java.util.Optional;
 import com.domhub.api.util.JwtUtil;
 
+
+
 @Service
+@RequiredArgsConstructor
 public class AccountService {
 
     private final AccountRepository accountRepository;
@@ -23,13 +27,6 @@ public class AccountService {
     private final RoleRepository roleRepository;
     private final JwtUtil jwtUtil = new JwtUtil();
 
-    public AccountService(AccountRepository accountRepository,
-                          PasswordEncoder passwordEncoder,
-                          RoleRepository roleRepository) {
-        this.accountRepository = accountRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.roleRepository = roleRepository;
-    }
 
     public Account createAccount(AccountRequest request) {
         String encodedPassword = passwordEncoder.encode(request.getPassword());

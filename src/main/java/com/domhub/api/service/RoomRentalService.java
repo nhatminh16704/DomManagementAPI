@@ -2,6 +2,7 @@ package com.domhub.api.service;
 
 import com.domhub.api.model.RoomRental;
 import com.domhub.api.repository.RoomRentalRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.domhub.api.dto.request.RoomRentalRequest;
 
@@ -9,16 +10,12 @@ import com.domhub.api.dto.request.RoomRentalRequest;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class RoomRentalService {
     private final RoomService roomService;
     private final StudentService studentService;
     private final RoomRentalRepository roomRentalRepository;
 
-    public RoomRentalService(RoomService roomService, StudentService studentService, RoomRentalRepository roomRentalRepository) {
-        this.roomService = roomService;
-        this.studentService = studentService;
-        this.roomRentalRepository = roomRentalRepository;
-    }
 
     public boolean canRentRoom(Integer studentId) {
         List<RoomRental> rentals = roomRentalRepository.findByStudentId(studentId);

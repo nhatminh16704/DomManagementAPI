@@ -3,6 +3,7 @@ package com.domhub.api.service;
 import com.domhub.api.mapper.RoomMapper;
 import com.domhub.api.model.Room;
 import com.domhub.api.repository.RoomRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.domhub.api.dto.response.RoomDTO;
 import com.domhub.api.model.RoomRental;
@@ -16,16 +17,12 @@ import java.util.List;
 
 
 @Service
+@RequiredArgsConstructor
 public class RoomService {
     private final RoomRepository roomRepository;
     private final RoomMapper roomMapper;
     private final RoomRentalRepository roomRentalRepository;
 
-    public RoomService(RoomRepository roomRepository, RoomMapper roomMapper, RoomRentalRepository roomRentalRepository) {
-        this.roomRepository = roomRepository;
-        this.roomMapper = roomMapper;
-        this.roomRentalRepository = roomRentalRepository;
-    }
 
     public List<RoomDTO> getAllRooms() {
         List<Room> rooms = roomRepository.findAll();

@@ -3,18 +3,17 @@ package com.domhub.api.service;
 import com.domhub.api.model.Notification;
 import com.domhub.api.dto.request.NotificationRequest;
 import com.domhub.api.repository.NotificationRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
 
-    public NotificationService(NotificationRepository notificationRepository) {
-        this.notificationRepository = notificationRepository;
-    }
 
     public List<Notification> getAllNotifications() {
         return notificationRepository.findAll();
