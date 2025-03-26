@@ -60,5 +60,4 @@ public class RoomMapper {
         return rooms.stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-
 }
