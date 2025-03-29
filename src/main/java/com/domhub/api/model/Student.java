@@ -18,8 +18,7 @@ public class Student {
 
     private String studentCode;
 
-    private String firstName;
-    private String lastName;
+    private String fullName;
 
     private LocalDate birthday;
 

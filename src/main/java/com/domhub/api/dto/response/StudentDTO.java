@@ -12,8 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 public class StudentDTO {
     private String studentCode;
-    private String firstName;
-    private String lastName;
+    private String fullName;
     private LocalDate birthday;
     private String gender;
     private String phoneNumber;

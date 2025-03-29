@@ -9,6 +9,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import com.domhub.api.dto.request.RoomRentalRequest;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import com.domhub.api.dto.response.RoomRentalDTO;
+import java.util.List;
 
 
 @RestController
@@ -28,6 +32,17 @@ public class RoomRentalController {
             return ResponseEntity.ok(message);
         } catch (RuntimeException e) {
             return ResponseEntity.status(400).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/student/{studentId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<RoomRentalDTO>> getAllRoomRentalsByStudentId(@PathVariable Integer studentId) {
+        try {
+            List<RoomRentalDTO> rentals = roomRentalService.getAllRoomRentalsByStudentId(studentId);
+            return ResponseEntity.ok(rentals);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(400).build();
         }
     }
 

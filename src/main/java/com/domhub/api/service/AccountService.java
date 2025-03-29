@@ -14,8 +14,8 @@ import com.domhub.api.repository.RoleRepository;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import com.domhub.api.util.JwtUtil;
 
+import com.domhub.api.util.JwtUtil;
 
 
 @Service
@@ -57,6 +57,12 @@ public class AccountService {
             }
         }
         throw new RuntimeException("Invalid username or password");
+    }
+
+    public void deleteAccount(Integer id) {
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Account not found with id " + id));
+        accountRepository.deleteById(id);
     }
 }
 

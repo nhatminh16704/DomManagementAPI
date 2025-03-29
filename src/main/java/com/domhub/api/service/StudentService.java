@@ -9,6 +9,8 @@ import com.domhub.api.mapper.StudentMapper;
 import com.domhub.api.model.Account;
 import com.domhub.api.dto.request.AccountRequest;
 
+import java.util.Optional;
+
 import java.util.List;
 
 
@@ -24,13 +26,9 @@ public class StudentService {
         return studentRepository.findAll();
     }
 
-    public StudentDTO getStudentById(Integer id) {
-        Student student = studentRepository.findById(id).orElse(null);
-        if (student != null) {
-            StudentDTO studentDTO = studentMapper.toDTO(student);
-            return studentDTO;
-        }
-        return null;
+    public Student getStudentById(Integer id) {
+        return studentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Student not found with id " + id));
     }
 
     public Student getStudentByAccountId(Integer accountId) {
@@ -56,6 +54,45 @@ public class StudentService {
 
         student.setAccountId(account.getId());
         return studentRepository.save(student);
+    }
+
+    public String updateStudent(Integer id, Student updatedStudent) {
+        Optional<Student> optionalStudent = studentRepository.findById(id);
+        if (optionalStudent.isEmpty()) {
+            return "Student not found!";
+        }
+
+        Student student = optionalStudent.get();
+
+        // Check if the new studentCode is unique before updating
+        if (!updatedStudent.getStudentCode().equals(student.getStudentCode()) &&
+                studentRepository.existsByStudentCode(updatedStudent.getStudentCode())) {
+            throw new RuntimeException("Student with studentCode " + updatedStudent.getStudentCode() + " already exists");
+        }
+        student.setStudentCode(updatedStudent.getStudentCode());
+        student.setFullName(updatedStudent.getFullName());
+        student.setEmail(updatedStudent.getEmail());
+        student.setPhoneNumber(updatedStudent.getPhoneNumber());
+        student.setBirthday(updatedStudent.getBirthday());
+        student.setGender(updatedStudent.getGender());
+        student.setClassName(updatedStudent.getClassName());
+        student.setHometown(updatedStudent.getHometown());
+
+        studentRepository.save(student);
+        return "Updated student with id " + id;
+    }
+
+    public void deleteStudent(Integer id) {
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Student not found with id " + id));
+
+        // Delete associated account first
+        if (student.getAccountId() != null) {
+            accountService.deleteAccount(student.getAccountId());
+        }
+
+        // Delete the student
+        studentRepository.deleteById(id);
     }
 
 

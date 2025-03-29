@@ -1,5 +1,6 @@
 package com.domhub.api.service;
 
+import com.domhub.api.dto.response.RoomRentalDTO;
 import com.domhub.api.model.RoomRental;
 import com.domhub.api.repository.RoomRentalRepository;
 import lombok.RequiredArgsConstructor;
@@ -48,7 +49,23 @@ public class RoomRentalService {
         return "Room rental created successfully";
     }
 
-
+    public List<RoomRentalDTO> getAllRoomRentalsByStudentId(Integer studentId) {
+        List<RoomRental> rentals = roomRentalRepository.findByStudentId(studentId);
+        return rentals.stream()
+                .map(rental -> {
+                    var room = roomService.getRoomById(rental.getRoomId());
+                    return new RoomRentalDTO(
+                            rental.getId(),
+                            rental.getStartDate(),
+                            rental.getEndDate(),
+                            rental.getPrice(),
+                            rental.getStatus().toString(),
+                            room.getRoomName(),
+                            room.getTypeRoom().getName()
+                    );
+                })
+                .toList();
+    }
 
 
 }
