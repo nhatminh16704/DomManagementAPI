@@ -6,10 +6,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.domhub.api.model.Notification;
 import com.domhub.api.dto.request.NotificationRequest;
+import com.domhub.api.dto.response.NotificationDTO;
 import com.domhub.api.service.NotificationService;
 
 
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/notifications")
@@ -34,4 +36,10 @@ public class NotificationController {
         }
         return ResponseEntity.ok(result);
     }
+
+    @GetMapping("/{id}")
+    public NotificationDTO getMethodName(@PathVariable int id) {
+        return notificationService.findNotificationById(id);
+    }
+    
 }
