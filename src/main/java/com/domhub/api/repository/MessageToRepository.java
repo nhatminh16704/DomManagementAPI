@@ -5,6 +5,7 @@ import com.domhub.api.model.MessageToId;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.domhub.api.dto.response.MessageDTO;
 import org.springframework.data.jpa.repository.Query;
@@ -18,4 +19,5 @@ public interface MessageToRepository extends JpaRepository<MessageTo, MessageToI
             "JOIN Account a ON m.sentBy = a.id " +
             "WHERE mt.receiver = :accountId")
     List<MessageDTO> findMessagesByReceiver(@Param("accountId") Integer accountId);
+    Optional<MessageTo> findByMessageIdAndReceiver(Integer messageId, Integer receiver);
 }

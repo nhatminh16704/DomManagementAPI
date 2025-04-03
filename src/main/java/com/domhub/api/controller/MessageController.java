@@ -6,6 +6,8 @@ import com.domhub.api.dto.response.MessageDTO;
 import com.domhub.api.dto.response.UserSearchDTO;
 import com.domhub.api.service.MessageService;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 import com.domhub.api.model.Message;
+
 
 @RestController
 @RequestMapping("/messages")
@@ -46,7 +49,7 @@ public class MessageController {
         }
     }
 
-    @GetMapping("/{accountId}")
+    @GetMapping("/{accountId}") 
     public ResponseEntity<List<MessageDTO>> getMessagesByAccountId(@PathVariable Integer accountId) {
         try {
             List<MessageDTO> messages = messageService.getMessagesByAccountId(accountId);
@@ -67,6 +70,14 @@ public class MessageController {
         }
     }
 
-
+    @GetMapping("/{messageId}/{receiver}")
+    public ResponseEntity<MessageDTO> getMessageById( @PathVariable Integer messageId, @PathVariable Integer receiver) {
+        MessageDTO messageDTO = messageService.getMessageById(messageId, receiver);
+        if (messageDTO != null) {
+            return ResponseEntity.ok(messageDTO);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
 

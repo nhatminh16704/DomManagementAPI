@@ -9,6 +9,8 @@ import com.domhub.api.repository.AccountRepository;
 import com.domhub.api.repository.MessageRepository;
 import com.domhub.api.repository.MessageToRepository;
 import lombok.AllArgsConstructor;
+
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import com.domhub.api.dto.response.UserSearchDTO;
 
@@ -58,7 +60,7 @@ public class MessageService {
         if (accountId == null) {
             throw new IllegalArgumentException("Account ID cannot be null");
         }
-        return messageToRepository.findMessagesByReceiver(accountId);
+        return messageToRepository.findMessagesByReceiver(accountId); 
     }
 
 
@@ -72,4 +74,21 @@ public class MessageService {
         }
         return messageRepository.findBySentBy(accountId);
     }
+
+        public MessageDTO getMessageById(Integer messageId, Integer receiver){
+            Optional<MessageTo> messageTo = messageToRepository.findByMessageIdAndReceiver(messageId, receiver);
+        
+                if (messageTo.isPresent()) {
+                    MessageTo messageToEntity = messageTo.get();
+                    if (!messageToEntity.isRead()) {
+                        messageToEntity.setRead(true);
+                        messageToRepository.save(messageToEntity);
+                    }
+                }
+        
+            MessageDTO messageDTO = messageRepository.findMessageByIdAndReceiver(messageId, receiver);   
+            return messageDTO;
+        }
+     
+
 }

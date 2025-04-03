@@ -48,13 +48,7 @@ public class NotificationService {
     }
 
     public NotificationDTO findNotificationById(int id) {
-        return notificationRepository.findById(id).map(notification -> {
-            String name = staffRepository.findByAccountId(notification.getCreatedBy())
-                    .map(staff -> staff.getFirstName() + " " + staff.getLastName())
-                    .orElseThrow(() -> new RuntimeException("Staff not found with id: " + notification.getCreatedBy()));
-    
-            return new NotificationDTO(notification.getTitle(), notification.getContent(), notification.getCreatedDate(), name);
-        }).orElseThrow(() -> new RuntimeException("Notification not found with id: " + id));
+        return notificationRepository.findNotificationDTOById(id).orElseThrow(() -> new RuntimeException("Notification not found with id: " + id));
     }
 }
 
