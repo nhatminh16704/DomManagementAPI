@@ -19,6 +19,6 @@ public class StudentDTO {
     private String email;
     private String hometown;
     private String className;
-    private List<RoomRentalDTO> roomRentals; // Danh sách thuê phòng (gồm lịch sử)
+    private List<RoomRentalDTO> roomRentals;
 }
 

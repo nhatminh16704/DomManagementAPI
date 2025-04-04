@@ -18,13 +18,6 @@ public class AuthController {
         this.accountService = accountService;
     }
 
-    // Tạo tài khoản mới
-    @PostMapping("/register")
-    public ResponseEntity<Account> registerAccount(@RequestBody AccountRequest request) {
-
-        Account newAccount = accountService.createAccount(request);
-        return ResponseEntity.ok(newAccount);
-    }
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody Map<String, String> request) {

@@ -1,6 +1,8 @@
 package com.domhub.api.dto.response;
 
 import java.util.List;
+
+import com.domhub.api.model.Student;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Data;
@@ -10,7 +12,7 @@ import lombok.Data;
 @Data
 public class RoomDetailDTO {
     private RoomDTO room;
-    private String description;
     private List<DeviceRoomDTO> devices;
+    private List<Student> students;
 
 }

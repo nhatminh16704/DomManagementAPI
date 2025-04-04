@@ -79,7 +79,7 @@ public class RoomService {
     public RoomDetailDTO getRoomDetail(Integer roomId) {
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new RuntimeException("Room not found with id: " + roomId));
-        return roomMapper.toRoomDetailDTO(room); // Convert entity -> DTO
+        return roomMapper.toRoomDetailDTO(room);
     }
 
     public Room getRoomById(Integer roomId) {
