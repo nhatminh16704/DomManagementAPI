@@ -28,8 +28,8 @@ public class RoomRentalController {
     @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<String> createRoomRental(@RequestBody RoomRentalRequest request) {
         try {
-            String message = roomRentalService.registerRoomRental(request);
-            return ResponseEntity.ok(message);
+            Integer message = roomRentalService.registerRoomRental(request);
+            return ResponseEntity.ok(String.valueOf(message));
         } catch (RuntimeException e) {
             return ResponseEntity.status(400).body(e.getMessage());
         }

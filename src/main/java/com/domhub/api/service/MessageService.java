@@ -75,20 +75,25 @@ public class MessageService {
         return messageRepository.findBySentBy(accountId);
     }
 
-        public MessageDTO getMessageById(Integer messageId, Integer receiver){
-            Optional<MessageTo> messageTo = messageToRepository.findByMessageIdAndReceiver(messageId, receiver);
-        
-                if (messageTo.isPresent()) {
-                    MessageTo messageToEntity = messageTo.get();
-                    if (!messageToEntity.isRead()) {
-                        messageToEntity.setRead(true);
-                        messageToRepository.save(messageToEntity);
-                    }
+    public MessageDTO getMessageById(Integer messageId, Integer receiver){
+        Optional<MessageTo> messageTo = messageToRepository.findByMessageIdAndReceiver(messageId, receiver);
+    
+            if (messageTo.isPresent()) {
+                MessageTo messageToEntity = messageTo.get();
+                if (!messageToEntity.isRead()) {
+                    messageToEntity.setRead(true);
+                    messageToRepository.save(messageToEntity);
                 }
-        
-            MessageDTO messageDTO = messageRepository.findMessageByIdAndReceiver(messageId, receiver);   
-            return messageDTO;
-        }
+            }
+    
+        MessageDTO messageDTO = messageRepository.findMessageByIdAndReceiver(messageId, receiver);   
+        return messageDTO;
+    }
+
+    public Message getMessagebyIDForAdmin(Integer messageid){
+        return messageRepository.findById(messageid).orElseThrow(() -> new RuntimeException("Message not found with id: " + messageid));
+    }
+
      
 
 }

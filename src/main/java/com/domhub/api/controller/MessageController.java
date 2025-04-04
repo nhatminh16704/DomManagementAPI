@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 import com.domhub.api.model.Message;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 @RestController
@@ -79,5 +82,11 @@ public class MessageController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @GetMapping("findId/{id}")
+    public Message getMessageByIdForAdmin(@PathVariable Integer id) {
+        return messageService.getMessagebyIDForAdmin(id);
+    }
+    
 }
 
