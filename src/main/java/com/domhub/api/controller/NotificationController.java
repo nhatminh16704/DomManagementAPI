@@ -21,8 +21,8 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @GetMapping("/findAll")
-    public ResponseEntity<List<Notification>> getAllNotifications() {
-        List<Notification> notifications = notificationService.getAllNotifications();
+    public ResponseEntity<List<NotificationDTO>> getAllNotifications() {
+        List<NotificationDTO> notifications = notificationService.getAllNotifications();
         return ResponseEntity.ok(notifications);
     }
 
@@ -37,9 +37,5 @@ public class NotificationController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/{id}")
-    public NotificationDTO getMethodName(@PathVariable int id) {
-        return notificationService.findNotificationById(id);
-    }
     
 }

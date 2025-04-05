@@ -10,8 +10,10 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class NotificationDTO {
+    private Integer id;
     private String title;
     private String content;
+    private String type;
     private LocalDate create_date;
     private String name_person_create;
 }

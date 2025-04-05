@@ -11,6 +11,7 @@ import com.domhub.api.repository.StaffRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -18,11 +19,17 @@ import java.util.List;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
-     private final StaffRepository staffRepository;
+    private final StaffRepository staffRepository;
 
 
-    public List<Notification> getAllNotifications() {
-        return notificationRepository.findAll();
+    public List<NotificationDTO> getAllNotifications() {
+        List<Notification> notifications = notificationRepository.findAll();
+        List<NotificationDTO> notificationDTOs= new ArrayList<>();
+        for(Notification notification : notifications){
+            Staff staff = staffRepository.findByAccountId(notification.getCreatedBy()).orElseThrow(() -> new RuntimeException("Staff not found with id: " + notification.getCreatedBy()));;
+            notificationDTOs.add(new NotificationDTO(notification.getId(), notification.getTitle(), notification.getContent(), notification.getType().toString(), notification.getCreatedDate(), staff.getFirstName()+" "+ staff.getLastName()));
+        }
+        return notificationDTOs;
     }
 
     public String createNotification(NotificationRequest request) {
@@ -47,8 +54,5 @@ public class NotificationService {
         }
     }
 
-    public NotificationDTO findNotificationById(int id) {
-        return notificationRepository.findNotificationDTOById(id).orElseThrow(() -> new RuntimeException("Notification not found with id: " + id));
-    }
 }
 
