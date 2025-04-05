@@ -64,9 +64,9 @@ public class MessageController {
 
     @GetMapping("/sent/{accountId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Message>> getMessagesSentByAccountId(@PathVariable Integer accountId) {
+    public ResponseEntity<List<MessageDTO>> getMessagesSentByAccountId(@PathVariable Integer accountId) {
         try {
-            List<Message> messages = messageService.getMessagesSentByAccountId(accountId);
+            List<MessageDTO> messages = messageService.getMessagesSentByAccountId(accountId);
             return ResponseEntity.ok(messages);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(null);
@@ -84,7 +84,7 @@ public class MessageController {
     }
 
     @GetMapping("findId/{id}")
-    public Message getMessageByIdForAdmin(@PathVariable Integer id) {
+    public MessageDTO getMessageByIdForAdmin(@PathVariable Integer id) {
         return messageService.getMessagebyIDForAdmin(id);
     }
     
