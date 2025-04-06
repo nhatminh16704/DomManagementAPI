@@ -3,6 +3,7 @@ package com.domhub.api.service;
 import com.domhub.api.dto.response.RoomRentalDTO;
 import com.domhub.api.model.RoomRental;
 import com.domhub.api.model.Student;
+import com.domhub.api.repository.RegistrationPeriodRepository;
 import com.domhub.api.repository.RoomRentalRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ public class RoomRentalService {
     private final RoomService roomService;
     private final StudentService studentService;
     private final RoomRentalRepository roomRentalRepository;
+    private final RegistrationPeriodRepository registrationPeriodRepository;
 
 
     public boolean canRentRoom(Integer studentId) {
@@ -34,9 +36,15 @@ public class RoomRentalService {
     public Integer registerRoomRental(RoomRentalRequest request) {
         Integer studentId = studentService.getStudentByAccountId(request.getAccountId()).getId();
 
+        if(!registrationPeriodRepository.existsByIsActiveTrue()){
+            throw new RuntimeException("Ngoài thời gian đăng ký");
+        }
+
         if (!canRentRoom(studentId)) {
             throw new RuntimeException("You can't rent more rooms");
         }
+
+
 
         RoomRental rental = new RoomRental();
         rental.setRoomId(request.getRoomId());
