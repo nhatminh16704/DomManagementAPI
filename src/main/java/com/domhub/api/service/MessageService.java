@@ -2,6 +2,7 @@ package com.domhub.api.service;
 
 import com.domhub.api.dto.request.MessageRequest;
 import com.domhub.api.dto.response.MessageDTO;
+import com.domhub.api.dto.response.MessageDetailDTO;
 import com.domhub.api.model.Account;
 import com.domhub.api.model.Message;
 import com.domhub.api.model.MessageTo;
@@ -45,8 +46,8 @@ public class MessageService {
 
         for (Integer receiver : messageRequest.getReceivers()) {
             MessageTo messageTo = new MessageTo();
-            messageTo.setMessageId(message.getId());
-            messageTo.setReceiver(receiver);
+            messageTo.getId().setMessageId(message.getId());
+            messageTo.getId().setReceiver(receiver);
             messageTo.setRead(false);
             messageToRepository.save(messageTo);
         }
@@ -61,6 +62,40 @@ public class MessageService {
         return messageToRepository.findMessagesByReceiver(accountId);
     }
 
+    public MessageDetailDTO getMessageById(Integer messageId) {
+        if (messageId == null) {
+            throw new IllegalArgumentException("Message ID cannot be null");
+        }
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new IllegalArgumentException("Message not found: " + messageId));
+        Account sender = accountRepository.findById(message.getSentBy())
+                .orElseThrow(() -> new IllegalArgumentException("Sender not found: " + message.getSentBy()));
+
+        return new MessageDetailDTO(
+                message.getId(),
+                message.getTitle(),
+                message.getContent(),
+                sender.getUserName(),
+                message.getDate()
+        );
+    }
+
+    public void markMessageAsRead(Integer messageId, Integer accountId) {
+        if (messageId == null) {
+            throw new IllegalArgumentException("Message ID cannot be null");
+        }
+        MessageTo messageTo = messageToRepository.findById_MessageIdAndId_Receiver(messageId, accountId)
+                .orElseThrow(() -> new IllegalArgumentException("Message not found: " + messageId));
+        messageTo.setRead(true);
+        messageToRepository.save(messageTo);
+    }
+
+    public int countUnreadMessagesByAccountId(Integer accountId) {
+        if (accountId == null) {
+            throw new IllegalArgumentException("Account ID cannot be null");
+        }
+        return messageToRepository.countUnreadMessagesByAccountId(accountId);
+    }
 
     public List<Message> getMessagesSentByAccountId(Integer accountId) {
         if (accountId == null) {

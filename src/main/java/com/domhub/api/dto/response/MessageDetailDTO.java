@@ -8,11 +8,10 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @AllArgsConstructor
-public class MessageDTO {
+public class MessageDetailDTO {
     private Integer id;
     private String title;
-    private String preview;
+    private String content;
     private String sentBy;
     private LocalDateTime date;
-    private boolean isRead;
 }
