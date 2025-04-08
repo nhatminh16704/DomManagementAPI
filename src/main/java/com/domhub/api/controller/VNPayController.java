@@ -42,8 +42,8 @@ public class VNPayController {
 
         } catch (RuntimeException e) {
             // Check if the error is "Room rental not found"
-            if (e.getMessage().contains("Room not found") || e.getMessage().contains("No available rooms left.")) {
-                roomService.cancelRoomRental(request.getIdRef());
+            if (e.getMessage().contains("Room not found") || e.getMessage().contains("No available rooms left.")) {              
+                roomService.cancelRoomRental(request.getIdRef()); 
             }
             return ResponseEntity.badRequest().body(e.getMessage());
         }

@@ -35,6 +35,11 @@ public class RoomRentalService {
 
     public Integer registerRoomRental(RoomRentalRequest request) {
         Integer studentId = studentService.getStudentByAccountId(request.getAccountId()).getId();
+        String gender = String.valueOf(studentService.getStudentByAccountId(request.getAccountId()).getGender());
+        String blocktype = String.valueOf(roomService.getRoomById(request.getRoomId()).getBlock().getType());
+        if(!gender.equals(blocktype)){
+            throw new RuntimeException("Không thể đăng ký phòng khác giới");
+        }
 
         if(!registrationPeriodRepository.existsByIsActiveTrue()){
             throw new RuntimeException("Ngoài thời gian đăng ký");
@@ -43,7 +48,6 @@ public class RoomRentalService {
         if (!canRentRoom(studentId)) {
             throw new RuntimeException("You can't rent more rooms");
         }
-
 
 
         RoomRental rental = new RoomRental();

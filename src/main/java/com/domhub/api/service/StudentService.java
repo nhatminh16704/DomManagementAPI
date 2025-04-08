@@ -3,13 +3,16 @@ package com.domhub.api.service;
 import com.domhub.api.dto.response.StudentDTO;
 import com.domhub.api.model.Student;
 import com.domhub.api.repository.StudentRepository;
+
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.domhub.api.mapper.StudentMapper;
 import com.domhub.api.model.Account;
 import com.domhub.api.dto.request.AccountRequest;
-
+import com.domhub.api.util.JwtUtil;
 import java.util.Optional;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
 
@@ -20,15 +23,43 @@ public class StudentService {
     private final StudentRepository studentRepository;
     private final StudentMapper studentMapper;
     private final AccountService accountService;
+    private final JwtUtil jwtUtil;
+    private final HttpServletRequest request;
 
 
     public List<Student> getAllStudents() {
         return studentRepository.findAll();
     }
+    
+    public String extractRole(String token) {
+        return jwtUtil.extractClaim(token, claims -> claims.get("role", String.class));
+    }
+
+    // Trích xuất username từ token
+    public String extractUsername(String token) {
+        return jwtUtil.extractClaim(token, Claims::getSubject);
+    }
+
+    // Trích xuất ID từ token
+    public Integer extractId(String token) {
+        return jwtUtil.extractClaim(token, claims -> claims.get("id", Integer.class));
+    }
 
     public Student getStudentById(Integer id) {
-        return studentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Student not found with id " + id));
+        String authHeader = request.getHeader("Authorization");
+        if(extractRole(authHeader.substring(7)).equals("STUDENT") ){
+            
+            //Student student = studentRepository.findById(extractId(authHeader.substring(7))).orElseThrow(() -> new RuntimeException("Student not found with id " + id));
+            return studentRepository.findByAccountId(extractId(authHeader.substring(7))).orElseThrow(() -> new RuntimeException("Student not found with id " + id));
+            // if(extractId(authHeader.substring(7)).equals(student.getAccountId())){
+            //     return student;
+            // }else{
+            //     throw new RuntimeException("Không được xem thông tin của người khác");
+            // }
+        }else{
+            return studentRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Student not found with id " + id));
+        }  
     }
 
     public Student getStudentByAccountId(Integer accountId) {
