@@ -24,6 +24,8 @@ public class Message {
 
     private String content;
 
+    private String preview;
+
     private Integer sentBy;
     private LocalDateTime date;
 

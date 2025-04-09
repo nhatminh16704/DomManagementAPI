@@ -15,7 +15,6 @@ public class RegistrationPeriod {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private Long creator;
     private String name;
     private LocalDateTime startDate;

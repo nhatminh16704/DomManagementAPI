@@ -5,19 +5,30 @@ import com.domhub.api.model.MessageToId;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.domhub.api.dto.response.MessageDTO;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 
 public interface MessageToRepository extends JpaRepository<MessageTo, MessageToId> {
-    @Query("SELECT new com.domhub.api.dto.response.MessageDTO(m.id, m.title, m.content, CONCAT(a.firstName, ' ', a.lastName), m.date, mt.isRead) " +
+
+    @Query("SELECT new com.domhub.api.dto.response.MessageDTO(" +
+            "m.id, m.title, m.preview, CONCAT(CONCAT(s.firstName,' '),s.lastName), m.date, mt.isRead) " +
             "FROM MessageTo mt " +
-            "JOIN Message m ON mt.messageId = m.id " +
-            "JOIN Staff a ON m.sentBy = a.accountId " +
-            "WHERE mt.receiver = :accountId")
+            "JOIN Message m ON mt.id.messageId = m.id " +
+            "JOIN Staff s ON m.sentBy = s.accountId " +
+            "WHERE mt.id.receiver = :accountId")
     List<MessageDTO> findMessagesByReceiver(@Param("accountId") Integer accountId);
-    Optional<MessageTo> findByMessageIdAndReceiver(Integer messageId, Integer receiver);
+
+
+    //     Correct syntax for querying embedded ID fields
+    Optional<MessageTo> findById_MessageIdAndId_Receiver(Integer messageId, Integer accountId);
+
+    @Query("SELECT COUNT(mt) FROM MessageTo mt WHERE mt.id.receiver = :accountId AND mt.isRead = false")
+    int countUnreadMessagesByAccountId(@Param("accountId") Integer accountId);
+
+
 }

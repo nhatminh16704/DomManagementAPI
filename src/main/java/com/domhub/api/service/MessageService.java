@@ -2,22 +2,18 @@ package com.domhub.api.service;
 
 import com.domhub.api.dto.request.MessageRequest;
 import com.domhub.api.dto.response.MessageDTO;
+import com.domhub.api.dto.response.MessageDetailDTO;
 import com.domhub.api.model.Account;
 import com.domhub.api.model.Message;
 import com.domhub.api.model.MessageTo;
-import com.domhub.api.model.Staff;
+import com.domhub.api.model.MessageToId;
 import com.domhub.api.repository.AccountRepository;
 import com.domhub.api.repository.MessageRepository;
 import com.domhub.api.repository.MessageToRepository;
-import com.domhub.api.repository.StaffRepository;
-
 import lombok.AllArgsConstructor;
-
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import com.domhub.api.dto.response.UserSearchDTO;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,7 +24,6 @@ public class MessageService {
     private final AccountRepository accountRepository;
     private final MessageRepository messageRepository;
     private final MessageToRepository messageToRepository;
-    private final StaffRepository staffRepository;
 
     public List<UserSearchDTO> searchUsers(String keyword) {
         return accountRepository.findByUserNameStartingWith(keyword)
@@ -50,10 +45,16 @@ public class MessageService {
         message.setSentBy(messageRequest.getSentBy());
         message = messageRepository.save(message);
 
+        if (message.getId() == null) {
+            throw new RuntimeException("Failed to generate ID for Message");
+        }
+
         for (Integer receiver : messageRequest.getReceivers()) {
+            MessageToId messageToId = new MessageToId();
+            messageToId.setMessageId(message.getId());
+            messageToId.setReceiver(receiver);
             MessageTo messageTo = new MessageTo();
-            messageTo.setMessageId(message.getId());
-            messageTo.setReceiver(receiver);
+            messageTo.setId(messageToId);
             messageTo.setRead(false);
             messageToRepository.save(messageTo);
         }
@@ -65,48 +66,53 @@ public class MessageService {
         if (accountId == null) {
             throw new IllegalArgumentException("Account ID cannot be null");
         }
-        return messageToRepository.findMessagesByReceiver(accountId); 
+        return messageToRepository.findMessagesByReceiver(accountId);
     }
 
+    public MessageDetailDTO getMessageById(Integer messageId) {
+        if (messageId == null) {
+            throw new IllegalArgumentException("Message ID cannot be null");
+        }
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new IllegalArgumentException("Message not found: " + messageId));
+        Account sender = accountRepository.findById(message.getSentBy())
+                .orElseThrow(() -> new IllegalArgumentException("Sender not found: " + message.getSentBy()));
+
+        return new MessageDetailDTO(
+                message.getId(),
+                message.getTitle(),
+                message.getContent(),
+                sender.getUserName(),
+                message.getDate()
+        );
+    }
+
+    public void markMessageAsRead(Integer messageId, Integer accountId) {
+        if (messageId == null) {
+            throw new IllegalArgumentException("Message ID cannot be null");
+        }
+        MessageTo messageTo = messageToRepository.findById_MessageIdAndId_Receiver(messageId, accountId)
+                .orElseThrow(() -> new IllegalArgumentException("Message not found: " + messageId));
+        messageTo.setRead(true);
+        messageToRepository.save(messageTo);
+    }
+
+    public int countUnreadMessagesByAccountId(Integer accountId) {
+        if (accountId == null) {
+            throw new IllegalArgumentException("Account ID cannot be null");
+        }
+        return messageToRepository.countUnreadMessagesByAccountId(accountId);
+    }
 
     public List<MessageDTO> getMessagesSentByAccountId(Integer accountId) {
         if (accountId == null) {
             throw new IllegalArgumentException("Account ID cannot be null");
         }
-        Optional<Staff> accountOpt = staffRepository.findByAccountId(accountId);
+        Optional<Account> accountOpt = accountRepository.findById(accountId);
         if (accountOpt.isEmpty()) {
             throw new IllegalArgumentException("Account not found: " + accountId);
         }
-        List<Message> messages = messageRepository.findBySentBy(accountId);
-        List<MessageDTO> result = new ArrayList<>();
-        for (Message message :messages){
-            result.add(new MessageDTO(message.getId(), message.getTitle(), message.getContent(), accountOpt.get().getFirstName() +" "+accountOpt.get().getLastName() , message.getDate(), true));
-        }
-        return result;
+
+        return messageRepository.findMessagesForAdmin(accountId);
     }
-
-    public MessageDTO getMessageById(Integer messageId, Integer receiver){
-        Optional<MessageTo> messageTo = messageToRepository.findByMessageIdAndReceiver(messageId, receiver);
-    
-            if (messageTo.isPresent()) {
-                MessageTo messageToEntity = messageTo.get();
-                if (!messageToEntity.isRead()) {
-                    messageToEntity.setRead(true);
-                    messageToRepository.save(messageToEntity);
-                }
-            }
-    
-        MessageDTO messageDTO = messageRepository.findMessageByIdAndReceiver(messageId, receiver);   
-        return messageDTO;
-    }
-
-    public MessageDTO getMessagebyIDForAdmin(Integer messageid){
-        Message message = messageRepository.findById(messageid).orElseThrow(() -> new RuntimeException("Message not found with id: " + messageid));
-        Staff staff = staffRepository.findByAccountId(message.getSentBy()).orElseThrow(() -> new RuntimeException("Staff not found with id: " + message.getSentBy()));
-        String name = staff.getFirstName() +" "+ staff.getLastName();
-        return new MessageDTO(message.getId(), message.getTitle(), message.getContent(), name, message.getDate(),true);
-    }
-
-     
-
 }

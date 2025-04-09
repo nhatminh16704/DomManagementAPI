@@ -49,13 +49,7 @@ public class StudentService {
         String authHeader = request.getHeader("Authorization");
         if(extractRole(authHeader.substring(7)).equals("STUDENT") ){
             
-            //Student student = studentRepository.findById(extractId(authHeader.substring(7))).orElseThrow(() -> new RuntimeException("Student not found with id " + id));
             return studentRepository.findByAccountId(extractId(authHeader.substring(7))).orElseThrow(() -> new RuntimeException("Student not found with id " + id));
-            // if(extractId(authHeader.substring(7)).equals(student.getAccountId())){
-            //     return student;
-            // }else{
-            //     throw new RuntimeException("Không được xem thông tin của người khác");
-            // }
         }else{
             return studentRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Student not found with id " + id));
