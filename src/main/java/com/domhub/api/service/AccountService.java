@@ -41,6 +41,18 @@ public class AccountService {
         return accountRepository.save(account);
     }
 
+    public void updateAccount(AccountRequest request, Integer id) {
+        Optional<Account> accountOptional = accountRepository.findById(id);
+        if (accountOptional.isPresent()) {
+            Account account = accountOptional.get();
+            account.setUserName(request.getUserName());
+//            account.setPassword(passwordEncoder.encode(request.getPassword()));
+            Role role = roleRepository.findByRoleName(request.getRole());
+            account.setRole(role);
+            accountRepository.save(account);
+        }
+    }
+
     public String login(String username, String password) {
         Optional<Account> accountOptional = accountRepository.findByUserName(username);
         if (accountOptional.isPresent()) {

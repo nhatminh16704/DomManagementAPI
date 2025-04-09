@@ -31,4 +31,21 @@ public class ReportController {
         return ResponseEntity.ok(reports);
     }
 
+    @PutMapping("/update/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    public ResponseEntity<String> updateReportStatus(
+            @PathVariable Integer id,
+            @RequestBody ReportStatusUpdateRequest statusUpdateRequest) {
+        String message = reportService.updateReportStatus(id, statusUpdateRequest.status());
+        return ResponseEntity.ok(message);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    public ResponseEntity<String> deleteReport(@PathVariable Integer id) {
+        String message = reportService.deleteReport(id);
+        return ResponseEntity.ok(message);
+    }
 }
+
+record ReportStatusUpdateRequest(String status) {}
