@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import com.domhub.api.mapper.StudentMapper;
 import com.domhub.api.model.Account;
 import com.domhub.api.dto.request.AccountRequest;
-import com.domhub.api.util.JwtUtil;
+import com.domhub.api.security.JwtUtil;
 import java.util.Optional;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -31,29 +31,21 @@ public class StudentService {
         return studentRepository.findAll();
     }
     
-    public String extractRole(String token) {
-        return jwtUtil.extractClaim(token, claims -> claims.get("role", String.class));
-    }
-
-    // Trích xuất username từ token
-    public String extractUsername(String token) {
-        return jwtUtil.extractClaim(token, Claims::getSubject);
-    }
-
-    // Trích xuất ID từ token
-    public Integer extractId(String token) {
-        return jwtUtil.extractClaim(token, claims -> claims.get("id", Integer.class));
-    }
 
     public Student getStudentById(Integer id) {
         String authHeader = request.getHeader("Authorization");
-        if(extractRole(authHeader.substring(7)).equals("STUDENT") ){
+        if(jwtUtil.extractRole(authHeader.substring(7)).equals("STUDENT") ){
             
-            return studentRepository.findByAccountId(extractId(authHeader.substring(7))).orElseThrow(() -> new RuntimeException("Student not found with id " + id));
+            return studentRepository.findByAccountId(jwtUtil.extractAccountId(authHeader.substring(7))).orElseThrow(() -> new RuntimeException("Student not found with id " + id));
         }else{
             return studentRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Student not found with id " + id));
         }  
+    }
+
+    public Integer getStudentIdByAccountId(Integer accountId) {
+        return studentRepository.findStudentIdByAccountId(accountId)
+                .orElseThrow(() -> new RuntimeException("Student not found with account id " + accountId));
     }
 
     public Student getStudentByAccountId(Integer accountId) {

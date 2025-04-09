@@ -1,4 +1,4 @@
-package com.domhub.api.util;
+package com.domhub.api.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -39,6 +39,19 @@ public class JwtUtil {
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
+
+    // Trích xuất ID từ token
+    public Integer extractAccountId(String token) {
+        return extractClaim(token, claims -> claims.get("id", Integer.class));
+    }
+
+
+    public Integer extractAccountIdFromHeader(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) return null;
+        String token = authHeader.substring(7);
+        return extractAccountId(token);
+    }
+
 
     public String extractRole(String token) {
         return extractClaim(token, claims -> claims.get("role", String.class));

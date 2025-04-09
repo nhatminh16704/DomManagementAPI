@@ -88,6 +88,12 @@ public class RoomRentalService {
                 .toList();
     }
 
+    public Integer getCurrentRoomByStudentId(Integer studentId) {
+        return roomRentalRepository.findByStudentIdAndStatus(studentId, RoomRental.Status.ACTIVE)
+                .map(RoomRental::getRoomId)
+                .orElse(null);
+    }
+
 
 
 }
