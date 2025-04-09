@@ -17,6 +17,10 @@ public class StaffService {
     private final StaffRepository staffRepository;
     private final AccountService accountService;
 
+    public long count() {
+        return staffRepository.count();
+    }
+
     public List<Staff> getAllStaff() {
         return staffRepository.findAll();
     }

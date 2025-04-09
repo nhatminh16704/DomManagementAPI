@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.domhub.api.model.RoomRental;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -16,5 +17,10 @@ public interface RoomRentalRepository extends JpaRepository<RoomRental, Integer>
             "JOIN RoomRental r ON r.studentId = s.id " +
             "WHERE r.roomId = :roomId AND r.status = 'ACTIVE'")
     List<Student> findStudentsByRoomId(@Param("roomId") Integer roomId);
+
+    @Query("SELECT SUM(r.price) FROM RoomRental r")
+    Double sumByPrice();
+
+    Optional<RoomRental> findByStudentIdAndStatus(Integer studentId, RoomRental.Status status);
 
 }

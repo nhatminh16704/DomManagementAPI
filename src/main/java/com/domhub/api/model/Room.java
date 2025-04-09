@@ -17,11 +17,11 @@ public class Room {
     @Column(nullable = false, unique = true)
     private String roomName;
 
-    @ManyToOne(fetch = FetchType.LAZY) // Tạo quan hệ với Block
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "block_id", referencedColumnName = "id", nullable = false)
     private Block block;
 
-    @ManyToOne(fetch = FetchType.LAZY) // Tạo quan hệ với TypeRoom
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "type", referencedColumnName = "id", nullable = false)
     private TypeRoom typeRoom;
 

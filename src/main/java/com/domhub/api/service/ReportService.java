@@ -5,6 +5,7 @@ import com.domhub.api.repository.ReportRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.domhub.api.dto.response.ReportDTO;
+
 import java.util.stream.Collectors;
 
 import java.util.List;
@@ -35,6 +36,10 @@ public class ReportService {
                         report.getStatus().name()
                 ))
                 .collect(Collectors.toList());
+    }
+
+    public long count() {
+        return reportRepository.count();
     }
 
 }

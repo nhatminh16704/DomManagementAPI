@@ -11,8 +11,6 @@ import com.domhub.api.repository.RoomRentalRepository;
 import com.domhub.api.dto.response.RoomDetailDTO;
 
 
-
-
 import java.util.List;
 
 
@@ -22,6 +20,21 @@ public class RoomService {
     private final RoomRepository roomRepository;
     private final RoomMapper roomMapper;
     private final RoomRentalRepository roomRentalRepository;
+
+
+    public long count() {
+        return roomRepository.count();
+    }
+
+    public long countCapacity() {
+        return roomRepository.sumByMaxStudents();
+    }
+
+    public long countAvailable() {
+        return roomRepository.sumByAvailable();
+    }
+
+
 
 
     public List<RoomDTO> getAllRooms() {

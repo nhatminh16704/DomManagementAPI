@@ -1,6 +1,5 @@
 package com.domhub.api.security;
 
-import com.domhub.api.util.JwtUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

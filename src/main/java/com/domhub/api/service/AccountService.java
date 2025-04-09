@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import com.domhub.api.util.JwtUtil;
+import com.domhub.api.security.JwtUtil;
 
 
 @Service

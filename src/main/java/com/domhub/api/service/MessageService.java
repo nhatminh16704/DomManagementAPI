@@ -6,6 +6,7 @@ import com.domhub.api.dto.response.MessageDetailDTO;
 import com.domhub.api.model.Account;
 import com.domhub.api.model.Message;
 import com.domhub.api.model.MessageTo;
+import com.domhub.api.model.MessageToId;
 import com.domhub.api.repository.AccountRepository;
 import com.domhub.api.repository.MessageRepository;
 import com.domhub.api.repository.MessageToRepository;
@@ -45,12 +46,17 @@ public class MessageService {
         message = messageRepository.save(message);
 
         for (Integer receiver : messageRequest.getReceivers()) {
+            MessageToId messageToId = new MessageToId();
+            messageToId.setMessageId(message.getId());
+            messageToId.setReceiver(receiver);
+
             MessageTo messageTo = new MessageTo();
-            messageTo.getId().setMessageId(message.getId());
-            messageTo.getId().setReceiver(receiver);
+            messageTo.setId(messageToId);  // <- quan trọng
             messageTo.setRead(false);
+
             messageToRepository.save(messageTo);
         }
+
 
         return "Message created successfully!";
     }

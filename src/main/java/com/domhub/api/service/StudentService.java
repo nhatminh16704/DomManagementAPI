@@ -1,6 +1,7 @@
 package com.domhub.api.service;
 
 import com.domhub.api.dto.response.StudentDTO;
+import com.domhub.api.model.RoomRental;
 import com.domhub.api.model.Student;
 import com.domhub.api.repository.StudentRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +19,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StudentService {
     private final StudentRepository studentRepository;
-    private final StudentMapper studentMapper;
     private final AccountService accountService;
 
+
+    public long count() {
+        return studentRepository.count();
+    }
 
     public List<Student> getAllStudents() {
         return studentRepository.findAll();
@@ -30,6 +34,12 @@ public class StudentService {
         return studentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Student not found with id " + id));
     }
+
+    public Integer getStudentIdByAccountId(Integer accountId) {
+        return studentRepository.findStudentIdByAccountId(accountId)
+                .orElseThrow(() -> new RuntimeException("Student not found with account id " + accountId));
+    }
+
 
     public Student getStudentByAccountId(Integer accountId) {
         return studentRepository.findByAccountId(accountId).orElse(null);

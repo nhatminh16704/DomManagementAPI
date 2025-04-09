@@ -29,7 +29,7 @@ public class RoomRental {
     @Temporal(TemporalType.DATE)
     private LocalDate endDate;
 
-    private double price;
+    private Double price;
 
     @Enumerated(EnumType.STRING)
     private Status status;

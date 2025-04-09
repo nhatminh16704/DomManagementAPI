@@ -24,7 +24,7 @@ public class VNPayService {
     @Value("${vnpay.secret-key}")
     private String secretKey;
 
-    public String createPaymentUrl(int amount, String bankCode, Integer idRef) {
+    public String createPaymentUrl(int amount, String bankCode, Integer idRef, String type) {
         Map<String, String> vnp_Params = new HashMap<>();
         vnp_Params.put("vnp_Version", "2.1.0");
         vnp_Params.put("vnp_Command", "pay");
@@ -37,7 +37,8 @@ public class VNPayService {
             vnp_Params.put("vnp_BankCode", bankCode);
         }
 
-        vnp_Params.put("vnp_TxnRef", idRef.toString()); // Transaction reference (unique ID for tracking)
+        String txnRef = type + "_" + idRef; // "RENT_12" hoặc "BILL_34"
+        vnp_Params.put("vnp_TxnRef", txnRef); // Transaction reference (unique ID for tracking)
         vnp_Params.put("vnp_OrderInfo", "Thanh toán đơn hàng");
 
         vnp_Params.put("vnp_OrderType", "other"); // Default order type
