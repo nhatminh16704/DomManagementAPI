@@ -39,11 +39,8 @@ public class Notification {
     }
 
     public enum NotificationType {
-        GENERAL,     // Thông báo chung
-        BILLING,     // Hóa đơn / Thanh toán
         MAINTENANCE, // Bảo trì
         SECURITY,    // An ninh
-        EVENT,       // Sự kiện
         RULES,       // Nội quy
         URGENT       // Khẩn cấp
     }
