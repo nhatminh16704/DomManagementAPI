@@ -3,17 +3,23 @@ package com.domhub.api.service;
 import com.domhub.api.dto.request.MessageRequest;
 import com.domhub.api.dto.response.MessageDTO;
 import com.domhub.api.dto.response.MessageDetailDTO;
+import com.domhub.api.dto.response.SearchRoomDTO;
 import com.domhub.api.model.Account;
 import com.domhub.api.model.Message;
 import com.domhub.api.model.MessageTo;
 import com.domhub.api.model.MessageToId;
+import com.domhub.api.model.Room;
 import com.domhub.api.repository.AccountRepository;
 import com.domhub.api.repository.MessageRepository;
 import com.domhub.api.repository.MessageToRepository;
+import com.domhub.api.repository.RoomRentalRepository;
+import com.domhub.api.repository.RoomRepository;
+
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.domhub.api.dto.response.UserSearchDTO;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,6 +30,8 @@ public class MessageService {
     private final AccountRepository accountRepository;
     private final MessageRepository messageRepository;
     private final MessageToRepository messageToRepository;
+    private final RoomRepository roomRepository;
+    private final RoomRentalRepository roomrentalRepository;
 
     public List<UserSearchDTO> searchUsers(String keyword) {
         return accountRepository.findByUserNameStartingWith(keyword)
@@ -31,6 +39,20 @@ public class MessageService {
                 .map(account -> new UserSearchDTO(account.getId(), account.getUserName()))
                 .toList();
     }
+
+    public List<SearchRoomDTO> searchRoom(String keyword){
+        List<Room> rooms = roomRepository.findByRoomNameContainingIgnoreCase(keyword);
+        List<SearchRoomDTO>  result = new ArrayList<>();
+        for (Room room : rooms){
+            SearchRoomDTO searchRoomDTO = new SearchRoomDTO(room.getId(), 
+            roomrentalRepository.findAccountIdsByRoomId(room.getId()),
+            room.getRoomName());
+            result.add(searchRoomDTO);
+        }
+        return result;
+    }
+
+
 
     public String createMessage(MessageRequest messageRequest) {
 
@@ -87,7 +109,7 @@ public class MessageService {
         );
     }
 
-    public void markMessageAsRead(Integer messageId, Integer accountId) {
+    public void markMessageAsRead(Integer messageId, Integer accountId) { 
         if (messageId == null) {
             throw new IllegalArgumentException("Message ID cannot be null");
         }

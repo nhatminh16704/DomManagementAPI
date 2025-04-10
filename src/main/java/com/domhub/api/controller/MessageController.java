@@ -4,6 +4,7 @@ package com.domhub.api.controller;
 import com.domhub.api.dto.request.MessageRequest;
 import com.domhub.api.dto.response.MessageDTO;
 import com.domhub.api.dto.response.MessageDetailDTO;
+import com.domhub.api.dto.response.SearchRoomDTO;
 import com.domhub.api.dto.response.UserSearchDTO;
 import com.domhub.api.service.MessageService;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.domhub.api.model.Message;
+
 
 @RestController
 @RequestMapping("/messages")
@@ -47,6 +49,17 @@ public class MessageController {
             return ResponseEntity.status(500).body(null);
         }
     }
+
+    @GetMapping("/search/room")
+    public ResponseEntity<List<SearchRoomDTO>> getMethodName(@RequestParam String keyword) {
+        try {
+            List<SearchRoomDTO> room = messageService.searchRoom(keyword);
+            return ResponseEntity.ok(room);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+    
 
     @GetMapping("/account/{accountId}")
     public ResponseEntity<List<MessageDTO>> getMessagesByAccountId(@PathVariable Integer accountId) {

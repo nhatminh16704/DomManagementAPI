@@ -16,4 +16,6 @@ public interface RoomRepository extends JpaRepository<Room, Integer> {
 
     @Query("SELECT r.id FROM Room r")
     List<Integer> findAllRoomIds();
+    
+    List<Room> findByRoomNameContainingIgnoreCase(String key);
 }

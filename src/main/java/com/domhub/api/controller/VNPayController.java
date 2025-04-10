@@ -81,46 +81,21 @@ public class VNPayController {
             String status;
             // Kiểm tra trạng thái giao dịch
             if ("00".equals(params.get("vnp_ResponseCode")) && "00".equals(params.get("vnp_TransactionStatus"))) {
-                        rental.setStatus(RoomRental.Status.ACTIVE);
-                        roomRentalRepository.save(rental);
-                        status = "success";
-                    } else {
-                        status = "failed";
-                        roomService.cancelRoomRental(rentId);
-                    }
-                    redirectUrl = String.format("http://localhost:3000/rooms/%d?status=%s", 
-                    rental.getRoomId(), status);
-                    return ResponseEntity.status(302).header("Location", redirectUrl).build();
-                }
+                rental.setStatus(RoomRental.Status.ACTIVE);
+                roomRentalRepository.save(rental);
+                status = "success";
+            } else {
+                status = "failed";
+                roomService.cancelRoomRental(rentId);
+            }
+            redirectUrl = String.format("http://localhost:3000/rooms/%d?status=%s", 
+            rental.getRoomId(), status);
+            return ResponseEntity.status(302).header("Location", redirectUrl).build();
+        }
+            
         }
 
     }
-
-
-    // @GetMapping("/return")
-    // public ResponseEntity<?> vnpayReturn(@RequestParam Map<String, String> params) {
-    //     System.out.println("VNPay Return Params: " + params);
-
-    //     // Lấy ID đơn thuê phòng từ txnRef
-    //     Integer rentalId = Integer.parseInt(params.get("vnp_TxnRef"));
-    //     String redirectUrl;
-    //     String status;
-    //     RoomRental rental = roomRentalRepository.findById(rentalId).orElseThrow(() -> new RuntimeException("Room rental not found"));
-    //     // Kiểm tra trạng thái giao dịch
-    //     if ("00".equals(params.get("vnp_ResponseCode")) && "00".equals(params.get("vnp_TransactionStatus"))) {
-    //         rental.setStatus(RoomRental.Status.ACTIVE);
-    //         roomRentalRepository.save(rental);
-    //         status = "success";
-    //         // return ResponseEntity.ok("Payment Successful! Order ID: " + params.get("vnp_TxnRef"));
-    //     } else {
-    //         status = "failed";
-    //         roomService.cancelRoomRental(rentalId);
-    //         // return ResponseEntity.status(400).body("Payment Failed! Error Code: " + params.get("vnp_ResponseCode"));
-    //     }
-    //     redirectUrl = String.format("http://localhost:3000/rooms/%d?status=%s", 
-    //     rental.getRoomId(), status);
-    //     return ResponseEntity.status(302).header("Location", redirectUrl).build();
-    // }
 
 
 

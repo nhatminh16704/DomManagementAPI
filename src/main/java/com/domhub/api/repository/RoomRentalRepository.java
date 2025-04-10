@@ -22,4 +22,9 @@ public interface RoomRentalRepository extends JpaRepository<RoomRental, Integer>
     Double sumByPrice();
 
     Optional<RoomRental> findByStudentIdAndStatus(Integer studentId, RoomRental.Status status);
+
+    @Query("SELECT s.accountId FROM Student s " +
+       "JOIN RoomRental r ON r.studentId = s.id " +
+       "WHERE r.roomId = :roomId AND r.status = 'ACTIVE'")
+    List<Integer> findAccountIdsByRoomId(Integer roomId);
 }
