@@ -155,4 +155,14 @@ public class JwtUtil {
                 .signWith(getSigningKey())
                 .compact();
     }
+
+
+
+
+
+    public String extractRoleFromHeader(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) return null;
+        String token = authHeader.substring(7);
+        return extractRole(token);
+    }
 }

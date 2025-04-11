@@ -45,7 +45,7 @@ public class RoomBillService {
         return roomBillRepository.findByRoomIdAndBillMonth(roomId, billMonth);
     }
 
-    @Scheduled(cron = "0 * * * * ?") // mỗi phút chạy 1 lần
+    @Scheduled(cron = "0 0 0 1 * ?") // Run at 00:00:00 on the first day of each month // mỗi phút chạy 1 lần
     public void generateMonthlyRoomBills() {
         LocalDate currentMonth = LocalDate.now().withDayOfMonth(1);         // 2025-04-01
         LocalDate lastMonth = currentMonth.minusMonths(1);                  // 2025-03-01

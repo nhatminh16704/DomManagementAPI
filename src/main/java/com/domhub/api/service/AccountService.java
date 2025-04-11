@@ -2,6 +2,7 @@ package com.domhub.api.service;
 
 
 import com.domhub.api.dto.request.AccountRequest;
+import com.domhub.api.dto.request.ChangePasswordRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -39,6 +40,33 @@ public class AccountService {
         account.setRole(role);
 
         return accountRepository.save(account);
+    }
+
+    public void updateAccount(AccountRequest request, Integer id) {
+        Optional<Account> accountOptional = accountRepository.findById(id);
+        if (accountOptional.isPresent()) {
+            Account account = accountOptional.get();
+            account.setUserName(request.getUserName());
+//            account.setPassword(passwordEncoder.encode(request.getPassword()));
+            Role role = roleRepository.findByRoleName(request.getRole());
+            account.setRole(role);
+            accountRepository.save(account);
+        }
+    }
+
+    public String changePassword(Integer id, ChangePasswordRequest changePasswordRequest) {
+        Optional<Account> accountOptional = accountRepository.findById(id);
+        if (accountOptional.isPresent()) {
+            Account account = accountOptional.get();
+            if (passwordEncoder.matches(changePasswordRequest.getCurrentPassword(), account.getPassword())) {
+                String encodedPassword = passwordEncoder.encode(changePasswordRequest.getNewPassword());
+                account.setPassword(encodedPassword);
+                accountRepository.save(account);
+                return "changed password";
+            }
+            throw new RuntimeException("password does not match");
+        }
+        throw new RuntimeException("account does not exist");
     }
 
     public String login(String username, String password) {

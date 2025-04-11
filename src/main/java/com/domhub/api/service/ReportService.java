@@ -42,4 +42,23 @@ public class ReportService {
         return reportRepository.count();
     }
 
+    public String updateReportStatus(Integer id, String status) {
+        Report report = reportRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Report not found with ID: " + id));
+
+        try {
+            Report.ReportStatus newStatus = Report.ReportStatus.valueOf(status.toUpperCase());
+            report.setStatus(newStatus);
+            reportRepository.save(report);
+            return "Report status updated successfully to " + newStatus;
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid status: " + status);
+        }
+    }
+
+    public String deleteReport(Integer id) {
+        Report report = reportRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Report not found with ID: " + id));
+        reportRepository.delete(report);
+        return "Report deleted successfully with ID: " + id;
+    }
 }
