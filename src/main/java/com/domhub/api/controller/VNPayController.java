@@ -84,9 +84,9 @@ public class VNPayController {
             if ("00".equals(params.get("vnp_ResponseCode")) && "00".equals(params.get("vnp_TransactionStatus"))) {
                 roomBill.setStatus(RoomBill.BillStatus.PAID);
                 roomBillService.update(roomBill);
-                return ResponseEntity.status(302).header("Location", url).build();
+                return ResponseEntity.status(302).header("Location", url + "?param=success").build();
             } else {
-                return ResponseEntity.status(302).header("Location", url).build();
+                return ResponseEntity.status(302).header("Location", url + "?param=fail").build();
             }
 
 
