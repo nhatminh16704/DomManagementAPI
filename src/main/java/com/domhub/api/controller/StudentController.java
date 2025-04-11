@@ -30,7 +30,7 @@ public class StudentController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getStudentById(@PathVariable Integer id) {
         try {
-            Student student = studentService.getStudentById(id);
+            StudentDTO student = studentService.getStudentById(id);
             return ResponseEntity.ok(student);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

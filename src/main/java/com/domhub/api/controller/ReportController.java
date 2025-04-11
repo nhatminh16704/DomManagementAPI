@@ -1,5 +1,6 @@
 package com.domhub.api.controller;
 
+import com.domhub.api.dto.request.ReportRequest;
 import com.domhub.api.dto.response.ReportDTO;
 import com.domhub.api.model.Report;
 import com.domhub.api.service.ReportService;
@@ -18,14 +19,17 @@ public class ReportController {
     private final ReportService reportService;
 
     @PostMapping("/create")
-    @PreAuthorize("hasAnyRole('STUDENT', 'STAFF', 'ADMIN')")
-    public ResponseEntity<String> createReport(@RequestBody Report report) {
-        String createdReport = reportService.createReport(report);
-        return ResponseEntity.ok(createdReport);
+    public ResponseEntity<?> createReport(@RequestBody ReportRequest reportRequest) {
+        try {
+            Report report = reportService.createReport(reportRequest);
+            return ResponseEntity.ok(report);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
     }
 
     @GetMapping("/findAll")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ResponseEntity<List<ReportDTO>> findAllReports() {
         List<ReportDTO> reports = reportService.findAllReports();
         return ResponseEntity.ok(reports);

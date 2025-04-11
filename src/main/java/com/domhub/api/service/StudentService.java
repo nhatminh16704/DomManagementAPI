@@ -32,15 +32,9 @@ public class StudentService {
         return studentRepository.findAll();
     }
 
-    public Student getStudentById(Integer id) {
-        String authHeader = request.getHeader("Authorization");
-        if(jwtUtil.extractRole(authHeader.substring(7)).equals("STUDENT") ){
-
-            return studentRepository.findByAccountId(jwtUtil.extractAccountId(authHeader.substring(7))).orElseThrow(() -> new RuntimeException("Student not found with id " + id));
-        }else{
-            return studentRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Student not found with id " + id));
-        }
+    public StudentDTO getStudentById(Integer id) {
+        Student student = studentRepository.findById(id).orElse(null);
+        return studentMapper.toDTO(student);
     }
 
     public Integer getStudentIdByAccountId(Integer accountId) {

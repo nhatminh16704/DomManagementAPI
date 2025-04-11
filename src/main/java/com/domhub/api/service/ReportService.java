@@ -1,10 +1,18 @@
 package com.domhub.api.service;
 
+import com.domhub.api.dto.request.ReportRequest;
+import com.domhub.api.model.Account;
 import com.domhub.api.model.Report;
+import com.domhub.api.repository.AccountRepository;
 import com.domhub.api.repository.ReportRepository;
+import com.domhub.api.util.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.domhub.api.dto.response.ReportDTO;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 
 import java.util.List;
@@ -14,17 +22,38 @@ import java.util.List;
 public class ReportService {
 
     private final ReportRepository reportRepository;
+    private final HttpServletRequest request;
+    private final JwtUtil jwtUtil;
+    private final AccountRepository accountRepository;
+    DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
 
-    public String createReport(Report report) {
-        if (report.getStatus() == null) {
-            report.setStatus(Report.ReportStatus.PENDING);
-        }
-        reportRepository.save(report);
-        return "Report created successfully with ID: " + report.getId();
+    public Report createReport(ReportRequest reportRequest) {
+        String authHeader = request.getHeader("Authorization");
+        Account account = accountRepository.findById(jwtUtil.extractAccountIdFromHeader(authHeader)).orElseThrow(() -> new RuntimeException("Tài khoản không tồn tại"));
+        Report report = new Report();
+        report.setCreatedBy(account);
+        report.setTitle(reportRequest.getTitle());
+        report.setContent(reportRequest.getContent());
+        report.setSentDate(LocalDateTime.parse(reportRequest.getSentDate(), formatter));
+        report.setStatus(Report.ReportStatus.valueOf(reportRequest.getStatus()));
+        return reportRepository.save(report);
     }
 
 
     public List<ReportDTO> findAllReports() {
+        String authHeader = request.getHeader("Authorization");
+        if (jwtUtil.extractRoleFromHeader(authHeader).equals("STUDENT")) {
+            return reportRepository.findByCreatedBy_Id(jwtUtil.extractAccountIdFromHeader(authHeader)).stream()
+                    .map(report -> new ReportDTO(
+                            report.getId(),
+                            report.getCreatedBy().toAccountDTO(),
+                            report.getTitle(),
+                            report.getContent(),
+                            report.getSentDate(),
+                            report.getStatus().name()
+                    ))
+                    .collect(Collectors.toList());
+        }
         return reportRepository.findAll().stream()
                 .map(report -> new ReportDTO(
                         report.getId(),
