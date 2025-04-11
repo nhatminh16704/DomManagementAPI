@@ -1,5 +1,7 @@
 package com.domhub.api.controller;
 
+import com.domhub.api.dto.request.ChangePasswordRequest;
+import com.domhub.api.dto.request.UpdateProfileRequest;
 import com.domhub.api.dto.response.StudentDTO;
 import com.domhub.api.model.Student;
 import com.domhub.api.service.StudentService;
@@ -12,7 +14,7 @@ import java.util.List;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
 @RequestMapping("/students")
 @RequiredArgsConstructor
 public class StudentController {
@@ -30,6 +32,39 @@ public class StudentController {
         try {
             Student student = studentService.getStudentById(id);
             return ResponseEntity.ok(student);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/profile")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<?> getStudentProfile() {
+        try {
+            StudentDTO studentProfile = studentService.getStudentProfileByAccountId();
+            return ResponseEntity.ok(studentProfile);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/profile")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<?> updateStudentProfile(@RequestBody UpdateProfileRequest updateProfileRequest) {
+        try {
+            String result = studentService.updateProfile(updateProfileRequest);
+            return ResponseEntity.ok(result);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/password")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest) {
+        try {
+            String result = studentService.changePassword(changePasswordRequest);
+            return ResponseEntity.ok(result);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

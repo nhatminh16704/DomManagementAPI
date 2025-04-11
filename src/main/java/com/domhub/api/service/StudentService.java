@@ -1,8 +1,12 @@
 package com.domhub.api.service;
 
+import com.domhub.api.dto.request.ChangePasswordRequest;
+import com.domhub.api.dto.request.UpdateProfileRequest;
 import com.domhub.api.dto.response.StudentDTO;
 import com.domhub.api.model.Student;
 import com.domhub.api.repository.StudentRepository;
+import com.domhub.api.util.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.domhub.api.mapper.StudentMapper;
@@ -20,6 +24,8 @@ public class StudentService {
     private final StudentRepository studentRepository;
     private final StudentMapper studentMapper;
     private final AccountService accountService;
+    private final HttpServletRequest request;
+    private final JwtUtil jwtUtil;
 
 
     public List<Student> getAllStudents() {
@@ -27,12 +33,32 @@ public class StudentService {
     }
 
     public Student getStudentById(Integer id) {
-        return studentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Student not found with id " + id));
+        String authHeader = request.getHeader("Authorization");
+        if(jwtUtil.extractRole(authHeader.substring(7)).equals("STUDENT") ){
+
+            return studentRepository.findByAccountId(jwtUtil.extractAccountId(authHeader.substring(7))).orElseThrow(() -> new RuntimeException("Student not found with id " + id));
+        }else{
+            return studentRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Student not found with id " + id));
+        }
+    }
+
+    public Integer getStudentIdByAccountId(Integer accountId) {
+        return studentRepository.findStudentIdByAccountId(accountId)
+                .orElseThrow(() -> new RuntimeException("Student not found with account id " + accountId));
     }
 
     public Student getStudentByAccountId(Integer accountId) {
         return studentRepository.findByAccountId(accountId).orElse(null);
+    }
+
+    public StudentDTO getStudentProfileByAccountId() {
+        String authHeader = request.getHeader("Authorization");
+        if(jwtUtil.extractRoleFromHeader(authHeader).equals("STUDENT") ){
+            Student student = getStudentByAccountId(jwtUtil.extractAccountIdFromHeader(authHeader));
+            return studentMapper.toDTO(student);
+        }
+        throw new RuntimeException("Not allowed to access other profiles");
     }
 
     public Student createStudent(Student student) {
@@ -78,8 +104,36 @@ public class StudentService {
         student.setClassName(updatedStudent.getClassName());
         student.setHometown(updatedStudent.getHometown());
 
+        String username = student.getStudentCode();
+        AccountRequest accountRequest = new AccountRequest();
+        accountRequest.setUserName(username);
+        accountRequest.setPassword("123456");
+        accountRequest.setRole("STUDENT");
+        accountService.updateAccount(accountRequest, student.getAccountId());
+
         studentRepository.save(student);
         return "Updated student with id " + id;
+    }
+
+    public String updateProfile(UpdateProfileRequest updateProfileRequest) {
+        String authHeader = request.getHeader("Authorization");
+        Optional<Student> optionalStudent = studentRepository.findByAccountId(jwtUtil.extractAccountIdFromHeader(authHeader));
+        if (optionalStudent.isEmpty()) {
+            return "Student not found!";
+        }
+
+        Student student = optionalStudent.get();
+
+        student.setEmail(updateProfileRequest.getEmail());
+        student.setPhoneNumber(updateProfileRequest.getPhoneNumber());
+
+        studentRepository.save(student);
+        return "Updated profile";
+    }
+
+    public String changePassword(ChangePasswordRequest changePasswordRequest) {
+        String authHeader = request.getHeader("Authorization");
+        return accountService.changePassword(jwtUtil.extractAccountIdFromHeader(authHeader), changePasswordRequest);
     }
 
     public void deleteStudent(Integer id) {

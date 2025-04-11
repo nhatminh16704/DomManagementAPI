@@ -1,5 +1,7 @@
 package com.domhub.api.controller;
 
+import com.domhub.api.dto.request.ChangePasswordRequest;
+import com.domhub.api.dto.request.UpdateProfileRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
 @RequestMapping("/staffs")
 @RequiredArgsConstructor
 public class StaffController {
@@ -32,13 +34,41 @@ public class StaffController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/profile")
+    public ResponseEntity<Staff> getStaffProfileByAccountId() {
+        Staff staff = staffService.getStaffProfileByAccountId();
+        return ResponseEntity.ok(staff);
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<?> updateStaffProfile(@RequestBody UpdateProfileRequest updateProfileRequest) {
+        try {
+            String result = staffService.updateProfile(updateProfileRequest);
+            return ResponseEntity.ok(result);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/password")
+    public ResponseEntity<?> updateStaffPasswordByAccountId(@RequestBody ChangePasswordRequest changePasswordRequest) {
+        try {
+            String result = staffService.changePassword(changePasswordRequest);
+            return ResponseEntity.ok(result);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @PostMapping("/create")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Staff> createStaff(@RequestBody Staff staff) {
         Staff newStaff = staffService.createStaff(staff);
         return ResponseEntity.ok(newStaff);
     }
 
     @PutMapping("/update/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> updateStaff(@PathVariable Integer id, @RequestBody Staff staff) {
         try {
             String result = staffService.updateStaff(id, staff);
@@ -49,6 +79,7 @@ public class StaffController {
     }
 
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteStaff(@PathVariable Integer id) {
         try {
             staffService.deleteStaffById(id);

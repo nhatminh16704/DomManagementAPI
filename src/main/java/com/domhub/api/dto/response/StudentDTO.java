@@ -1,5 +1,6 @@
 package com.domhub.api.dto.response;
 
+import com.domhub.api.model.Violation;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,5 +21,6 @@ public class StudentDTO {
     private String hometown;
     private String className;
     private List<RoomRentalDTO> roomRentals; // Danh sách thuê phòng (gồm lịch sử)
+    private List<ViolationDTO> violations;      // Danh sach sai pham do Staff bao
 }
 

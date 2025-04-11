@@ -142,4 +142,22 @@ public class JwtUtil {
                 .signWith(getSigningKey())
                 .compact();
     }
+
+
+
+    public Integer extractAccountId(String token) {
+        return extractClaim(token, claims -> claims.get("id", Integer.class));
+    }
+
+    public Integer extractAccountIdFromHeader(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) return null;
+        String token = authHeader.substring(7);
+        return extractAccountId(token);
+    }
+
+    public String extractRoleFromHeader(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) return null;
+        String token = authHeader.substring(7);
+        return extractRole(token);
+    }
 }
