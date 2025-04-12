@@ -69,7 +69,6 @@ public class VNPayController {
 
     @GetMapping("/return")
     public ResponseEntity<?> vnpayReturn(@RequestParam Map<String, String> params) {
-
         // Kiểm tra chữ ký bảo mật
         if (!vnPayService.validateSignature(params)) {
             return ResponseEntity.status(400).body("Invalid Signature");
@@ -78,6 +77,7 @@ public class VNPayController {
         String rawTxnRef = params.get("vnp_TxnRef");
         if (rawTxnRef.startsWith("BILL_")) {
             // xử lý hóa đơn
+            String url = String.format("http://localhost:3000/bills");
             int billId = Integer.parseInt(rawTxnRef.replace("BILL_", ""));
             RoomBill roomBill = roomBillService.findById(billId).orElseThrow(() -> new RuntimeException("Bill not found"));
 
@@ -85,9 +85,9 @@ public class VNPayController {
             if ("00".equals(params.get("vnp_ResponseCode")) && "00".equals(params.get("vnp_TransactionStatus"))) {
                 roomBill.setStatus(RoomBill.BillStatus.PAID);
                 roomBillService.update(roomBill);
-                return ResponseEntity.ok("Payment Successful! Order ID: " + params.get("vnp_TxnRef"));
+                return ResponseEntity.status(302).header("Location", url + "?param=success").build();
             } else {
-                return ResponseEntity.status(400).body("Payment Failed! Error Code: " + params.get("vnp_ResponseCode"));
+                return ResponseEntity.status(302).header("Location", url + "?param=fail").build();
             }
 
 
