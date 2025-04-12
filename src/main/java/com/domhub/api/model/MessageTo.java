@@ -16,6 +16,5 @@ import lombok.AllArgsConstructor;
 public class MessageTo {
     @EmbeddedId
     private MessageToId id;
-
     private boolean isRead;
 }

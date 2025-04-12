@@ -1,18 +1,19 @@
 package com.domhub.api.dto.response;
 
+import java.time.LocalDate;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @AllArgsConstructor
-public class MessageDTO {
+public class NotificationDTO {
     private Integer id;
     private String title;
-    private String preview;
-    private String sentBy;
-    private LocalDateTime date;
-    private boolean isRead;
+    private String content;
+    private String type;
+    private LocalDate create_date;
+    private String name_person_create;
 }

@@ -12,4 +12,3 @@ public class MessageRequest {
     private Integer sentBy;
     private List<Integer> receivers;
 }
-

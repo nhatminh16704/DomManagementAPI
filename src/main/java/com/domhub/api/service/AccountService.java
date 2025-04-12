@@ -26,7 +26,7 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
-    private final JwtUtil jwtUtil = new JwtUtil();
+    private final JwtUtil jwtUtil;
 
 
     public Account createAccount(AccountRequest request) {

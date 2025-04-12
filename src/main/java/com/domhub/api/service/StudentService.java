@@ -8,13 +8,16 @@ import com.domhub.api.model.Student;
 import com.domhub.api.repository.StudentRepository;
 import com.domhub.api.security.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
+
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.domhub.api.mapper.StudentMapper;
 import com.domhub.api.model.Account;
 import com.domhub.api.dto.request.AccountRequest;
-
+import com.domhub.api.security.JwtUtil;
 import java.util.Optional;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
 
@@ -36,6 +39,7 @@ public class StudentService {
     public List<Student> getAllStudents() {
         return studentRepository.findAll();
     }
+
 
     public Student getStudentById(Integer id) {
         String authHeader = request.getHeader("Authorization");

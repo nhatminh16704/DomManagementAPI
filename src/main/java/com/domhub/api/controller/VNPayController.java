@@ -39,6 +39,7 @@ public class VNPayController {
                     "RENTAL"
             );
             return ResponseEntity.ok(paymentUrl);
+
         } catch (RuntimeException e) {
             // Check if the error is "Room rental not found"
             if (e.getMessage().contains("Room not found") || e.getMessage().contains("No available rooms left.")) {
@@ -94,19 +95,23 @@ public class VNPayController {
             // xử lý thuê phòng
             int rentId = Integer.parseInt(rawTxnRef.replace("RENT_", ""));
             RoomRental rental = roomRentalRepository.findById(rentId).orElseThrow(() -> new RuntimeException("Room rental not found"));
+            String redirectUrl;
+            String status;
             // Kiểm tra trạng thái giao dịch
             if ("00".equals(params.get("vnp_ResponseCode")) && "00".equals(params.get("vnp_TransactionStatus"))) {
                 rental.setStatus(RoomRental.Status.ACTIVE);
                 roomRentalRepository.save(rental);
-                return ResponseEntity.ok("Payment Successful! Order ID: " + params.get("vnp_TxnRef"));
+                status = "success";
             } else {
+                status = "failed";
                 roomService.cancelRoomRental(rentId);
-                return ResponseEntity.status(400).body("Payment Failed! Error Code: " + params.get("vnp_ResponseCode"));
             }
+            redirectUrl = String.format("http://localhost:3000/rooms/%d?status=%s",
+            rental.getRoomId(), status);
+            return ResponseEntity.status(302).header("Location", redirectUrl).build();
         }
 
-    }
-
+        }
 
 }
 

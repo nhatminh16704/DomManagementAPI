@@ -47,7 +47,6 @@ public class RoomMapper {
         roomDTO.setAvailable(room.getAvailable());
         roomDTO.setMaxStudents(room.getMaxStudents());
         roomDTO.setTypeRoom(room.getTypeRoom().getName());
-
         return roomDTO;
     }
 

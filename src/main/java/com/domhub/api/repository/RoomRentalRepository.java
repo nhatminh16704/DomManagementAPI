@@ -1,6 +1,7 @@
 package com.domhub.api.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+
 import com.domhub.api.model.RoomRental;
 
 import java.util.List;
@@ -23,4 +24,8 @@ public interface RoomRentalRepository extends JpaRepository<RoomRental, Integer>
 
     Optional<RoomRental> findByStudentIdAndStatus(Integer studentId, RoomRental.Status status);
 
+    @Query("SELECT s.accountId FROM Student s " +
+       "JOIN RoomRental r ON r.studentId = s.id " +
+       "WHERE r.roomId = :roomId AND r.status = 'ACTIVE'")
+    List<Integer> findAccountIdsByRoomId(Integer roomId);
 }
