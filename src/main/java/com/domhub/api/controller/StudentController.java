@@ -28,7 +28,7 @@ public class StudentController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('STUDENT')")
+    @PreAuthorize("hasAnyRole('STUDENT', 'ADMIN', 'STAFF')")
     public ResponseEntity<?> getStudentById(@PathVariable Integer id) {
         try {
             Student student = studentService.getStudentById(id);

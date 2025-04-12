@@ -41,7 +41,7 @@ public class Notification {
     public enum NotificationType {
         MAINTENANCE, // Bảo trì
         SECURITY,    // An ninh
-        RULES,       // Nội quy
+        GENERAL,       // Nội quy
         URGENT       // Khẩn cấp
     }
 }
