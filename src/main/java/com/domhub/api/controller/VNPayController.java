@@ -93,7 +93,7 @@ public class VNPayController {
 
         } else {
             // xử lý thuê phòng
-            int rentId = Integer.parseInt(rawTxnRef.replace("RENT_", ""));
+            int rentId = Integer.parseInt(rawTxnRef.replace("RENTAL_", ""));
             RoomRental rental = roomRentalRepository.findById(rentId).orElseThrow(() -> new RuntimeException("Room rental not found"));
             String redirectUrl;
             String status;
@@ -112,6 +112,8 @@ public class VNPayController {
         }
 
         }
+
+
 
 }
 

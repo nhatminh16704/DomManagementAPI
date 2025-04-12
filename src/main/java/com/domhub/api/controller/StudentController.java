@@ -18,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 @RequestMapping("/students")
 @RequiredArgsConstructor
 public class StudentController {
+
     private final StudentService studentService;
 
 
@@ -31,11 +32,17 @@ public class StudentController {
     @PreAuthorize("hasAnyRole('STUDENT', 'ADMIN', 'STAFF')")
     public ResponseEntity<?> getStudentById(@PathVariable Integer id) {
         try {
-            Student student = studentService.getStudentById(id);
+            StudentDTO student = studentService.getStudentById(id);
             return ResponseEntity.ok(student);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @GetMapping("/info")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<Student> getStudentByAccountIdFromStudent() {
+        return ResponseEntity.ok(studentService.getStudentByAccountIdFromStudent());
     }
 
     @GetMapping("/profile")

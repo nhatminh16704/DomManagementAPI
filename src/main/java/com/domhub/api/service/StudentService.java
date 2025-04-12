@@ -16,7 +16,9 @@ import com.domhub.api.mapper.StudentMapper;
 import com.domhub.api.model.Account;
 import com.domhub.api.dto.request.AccountRequest;
 import com.domhub.api.security.JwtUtil;
+
 import java.util.Optional;
+
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
@@ -26,10 +28,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StudentService {
     private final StudentRepository studentRepository;
+    private final StudentMapper studentMapper;
     private final AccountService accountService;
     private final HttpServletRequest request;
     private final JwtUtil jwtUtil;
-    private final StudentMapper studentMapper;
 
 
     public long count() {
@@ -40,16 +42,19 @@ public class StudentService {
         return studentRepository.findAll();
     }
 
+    public Student getStudentByAccountID(Integer id) {
+        return studentRepository.findByAccountId(id).orElse(null);
+    }
 
-    public Student getStudentById(Integer id) {
+    public StudentDTO getStudentById(Integer id) {
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Student not found with id " + id));
+        return studentMapper.toDTO(student);
+    }
+
+    public Student getStudentByAccountIdFromStudent() {
         String authHeader = request.getHeader("Authorization");
-        if(jwtUtil.extractRole(authHeader.substring(7)).equals("STUDENT") ){
-
-            return studentRepository.findByAccountId(jwtUtil.extractAccountId(authHeader.substring(7))).orElseThrow(() -> new RuntimeException("Student not found with id " + id));
-        }else{
-            return studentRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Student not found with id " + id));
-        }
+        return getStudentByAccountId(jwtUtil.extractAccountIdFromHeader(authHeader));
     }
 
 
@@ -65,7 +70,7 @@ public class StudentService {
 
     public StudentDTO getStudentProfileByAccountId() {
         String authHeader = request.getHeader("Authorization");
-        if(jwtUtil.extractRoleFromHeader(authHeader).equals("STUDENT") ){
+        if (jwtUtil.extractRoleFromHeader(authHeader).equals("STUDENT")) {
             Student student = getStudentByAccountId(jwtUtil.extractAccountIdFromHeader(authHeader));
             return studentMapper.toDTO(student);
         }

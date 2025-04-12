@@ -23,6 +23,7 @@ public class StudentMapper {
         StudentDTO studentDTO = new StudentDTO();
         studentDTO.setStudentCode(student.getStudentCode());
         studentDTO.setFullName(student.getFullName());
+        studentDTO.setBirthday(student.getBirthday());
         studentDTO.setGender(student.getGender().toString());
         studentDTO.setHometown(student.getHometown());
         studentDTO.setPhoneNumber(student.getPhoneNumber());
