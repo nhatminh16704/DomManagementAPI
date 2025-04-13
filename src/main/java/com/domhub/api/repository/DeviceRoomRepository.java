@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import com.domhub.api.dto.response.DeviceRoomDTO;
 
 public interface DeviceRoomRepository extends JpaRepository<DeviceRoom, DeviceRoomId> {
-    @Query("SELECT new com.domhub.api.dto.response.DeviceRoomDTO(d.deviceName, dr.quantity) " +
+    @Query("SELECT new com.domhub.api.dto.response.DeviceRoomDTO(d.id, d.deviceName, dr.quantity) " +
             "FROM DeviceRoom dr " +
             "JOIN Device d ON dr.id.deviceId = d.id " +
             "WHERE dr.id.roomId = :roomId")

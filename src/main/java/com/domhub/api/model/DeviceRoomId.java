@@ -14,7 +14,7 @@ import java.util.Objects;
 public class DeviceRoomId implements Serializable {
 
     private Integer roomId;
-    private Integer deviceId;
+    private Long deviceId;
 
     @Override
     public boolean equals(Object o) {

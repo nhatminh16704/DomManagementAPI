@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 @Setter
 @AllArgsConstructor
 public class DeviceRoomDTO {
+    private Long id;
     private String deviceName;
     private int quantity;
 }

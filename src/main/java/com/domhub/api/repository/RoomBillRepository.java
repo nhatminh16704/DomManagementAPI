@@ -32,7 +32,9 @@ public interface RoomBillRepository extends JpaRepository<RoomBill, Integer> {
     @Query("SELECT new com.domhub.api.dto.response.RoomBillDTO(rb.id, rb.roomId, r.roomName, rb.billMonth, " +
             "rb.electricityStart, rb.electricityEnd, rb.totalAmount, rb.status) " +
             "FROM RoomBill rb JOIN Room r ON rb.roomId = r.id " +
-            "WHERE rb.roomId = :roomId")
+            "WHERE rb.roomId = :roomId AND rb.status != 'PENDING'")
     List<RoomBillDTO> findAllByRoomId(Integer roomId);
+
+
 
 }
