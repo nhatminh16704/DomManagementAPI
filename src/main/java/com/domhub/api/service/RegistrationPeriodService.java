@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.domhub.api.dto.request.RegistrationPeriodRequest;
 import com.domhub.api.dto.response.RegistrationPeriodDTO;
 import com.domhub.api.model.RegistrationPeriod;
+import com.domhub.api.model.RegistrationPeriod.RegistrationStatus;
 import com.domhub.api.repository.RegistrationPeriodRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,7 @@ public class RegistrationPeriodService {
         registrationPeriod.setName(request.getName());
         registrationPeriod.setStartDate(request.getStartDate());
         registrationPeriod.setEndDate(request.getEndDate());
-        registrationPeriod.setIsActive(true);
+        registrationPeriod.setIsActive(RegistrationStatus.NOT_STARTED);
 
         RegistrationPeriod saved = registrationPeriodRepository.save(registrationPeriod);
 

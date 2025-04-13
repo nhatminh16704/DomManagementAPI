@@ -16,5 +16,6 @@ public interface RegistrationPeriodRepository extends JpaRepository<Registration
        "FROM RegistrationPeriod r " +
        "JOIN Staff s ON r.creator = s.accountId")
     List<RegistrationPeriodDTO> findAllWithCreatorName();
-    boolean existsByIsActiveTrue();
+    @Query("SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END FROM RegistrationPeriod r WHERE r.isActive = 'ACTIVE'")
+    boolean existsActiveRegistrationPeriod();
 }

@@ -2,6 +2,8 @@ package com.domhub.api.dto.response;
 
 import java.time.LocalDateTime;
 
+import com.domhub.api.model.RegistrationPeriod.RegistrationStatus;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,5 +17,5 @@ public class RegistrationPeriodDTO {
     private String name;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
-    private Boolean isActive;
+    private RegistrationStatus isActive;
 }

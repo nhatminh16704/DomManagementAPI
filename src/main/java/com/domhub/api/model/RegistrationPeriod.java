@@ -19,5 +19,13 @@ public class RegistrationPeriod {
     private String name;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
-    private Boolean isActive;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private RegistrationStatus isActive;
+
+    public enum RegistrationStatus {
+        NOT_STARTED,
+        ACTIVE,
+        ENDED
+    }
 }
