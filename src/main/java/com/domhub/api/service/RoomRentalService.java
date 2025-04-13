@@ -3,6 +3,7 @@ package com.domhub.api.service;
 import com.domhub.api.dto.response.RoomRentalDTO;
 import com.domhub.api.model.RoomRental;
 import com.domhub.api.model.Student;
+import com.domhub.api.model.RegistrationPeriod.RegistrationStatus;
 import com.domhub.api.repository.RegistrationPeriodRepository;
 import com.domhub.api.repository.RoomRentalRepository;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +42,7 @@ public class RoomRentalService {
             throw new RuntimeException("Không thể đăng ký phòng khác giới");
         }
 
-        if(!registrationPeriodRepository.existsByIsActiveTrue()){
+        if(!registrationPeriodRepository.existsActiveRegistrationPeriod()){
             throw new RuntimeException("Ngoài thời gian đăng ký");
         }
 
