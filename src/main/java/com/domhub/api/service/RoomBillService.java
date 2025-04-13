@@ -45,7 +45,7 @@ public class RoomBillService {
         return roomBillRepository.findByRoomIdAndBillMonth(roomId, billMonth);
     }
 
-    @Scheduled(cron = "0 0 0 1 * ?") // Run at 00:00:00 on the first day of each month // mỗi phút chạy 1 lần
+    @Scheduled(cron = "0 0 0 1 * ?") // Run at 00:00:00 on the first day of each month
     public void generateMonthlyRoomBills() {
         LocalDate currentMonth = LocalDate.now().withDayOfMonth(1);         // 2025-04-01
         LocalDate lastMonth = currentMonth.minusMonths(1);                  // 2025-03-01
@@ -115,6 +115,27 @@ public class RoomBillService {
         return roomBillRepository.findAllByRoomId(roomId);
     }
 
+    public List<BigDecimal> getMonthlyIncome() {
+        List<Object[]> monthlyData = roomBillRepository.getMonthlyIncomeForCurrentYear();
+
+        // Initialize all 12 months with zero
+        BigDecimal[] monthlyIncome = new BigDecimal[12];
+        for (int i = 0; i < 12; i++) {
+            monthlyIncome[i] = BigDecimal.ZERO;
+        }
+
+        // Fill in the data from the database
+        for (Object[] data : monthlyData) {
+            LocalDate month = (LocalDate) data[0];
+            BigDecimal amount = (BigDecimal) data[1];
+
+            // Month in LocalDate is 1-based, so we subtract 1 for array index
+            int monthIndex = month.getMonthValue() - 1;
+            monthlyIncome[monthIndex] = amount;
+        }
+
+        return List.of(monthlyIncome);
+    }
 
 
 }

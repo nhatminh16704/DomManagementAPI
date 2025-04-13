@@ -35,6 +35,13 @@ public interface RoomBillRepository extends JpaRepository<RoomBill, Integer> {
             "WHERE rb.roomId = :roomId AND rb.status != 'PENDING'")
     List<RoomBillDTO> findAllByRoomId(Integer roomId);
 
+    @Query("SELECT rb.billMonth as month, SUM(rb.totalAmount) as totalAmount " +
+            "FROM RoomBill rb " +
+            "WHERE FUNCTION('YEAR', rb.billMonth) = FUNCTION('YEAR', CURRENT_DATE) " +
+            "AND rb.status = 'PAID' " +
+            "GROUP BY rb.billMonth " +
+            "ORDER BY rb.billMonth")
+    List<Object[]> getMonthlyIncomeForCurrentYear();
 
 
 }

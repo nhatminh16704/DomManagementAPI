@@ -12,6 +12,7 @@ public class DashboardService {
     private final StudentService studentService;
     private final RoomRentalService roomRentalService;
     private final StaffService staffService;
+    private final NotificationService notificationService;
 
     public DashboardDTO getDashboard() {
         Long reportCount = reportService.count();
@@ -19,12 +20,13 @@ public class DashboardService {
         Long studentCount = studentService.count();
         Long staffCount = staffService.count();
         Double revenue = roomRentalService.getTotalRevenue();
+        Long notificationCount = notificationService.count();
 
         Long totalRoomCapacity = roomService.countCapacity();
         Long available = roomService.countAvailable();
 
 
-        return new DashboardDTO(reportCount, roomCount, studentCount, staffCount, revenue, totalRoomCapacity, available);
+        return new DashboardDTO(reportCount, roomCount, studentCount, staffCount, revenue,notificationCount, totalRoomCapacity, available);
 
 
 

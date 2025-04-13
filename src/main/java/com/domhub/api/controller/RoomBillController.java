@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -74,6 +75,13 @@ public class RoomBillController {
         List<RoomBillDTO> bills = roomBillService.getStudentBills(authHeader);
         return ResponseEntity.ok(bills);
     }
+
+    @GetMapping("/monthly-income")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<List<BigDecimal>> getMonthlyIncome() {
+            List<BigDecimal> monthlyIncome = roomBillService.getMonthlyIncome();
+            return ResponseEntity.ok(monthlyIncome);
+        }
 
 
 

@@ -21,6 +21,9 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final StaffRepository staffRepository;
 
+    public long count() {
+        return notificationRepository.count();
+    }
 
     public List<NotificationDTO> getAllNotifications() {
         List<Notification> notifications = notificationRepository.findAll();
