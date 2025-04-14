@@ -22,8 +22,6 @@ public class Block {
 
     @Enumerated(EnumType.STRING)
     private TypeRoom type;
-
-    private int totalRooms;
     
     public enum TypeRoom {
         Nam, Nữ

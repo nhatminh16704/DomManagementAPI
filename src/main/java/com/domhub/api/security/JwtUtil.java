@@ -17,7 +17,7 @@ import java.util.function.Function;
 public class JwtUtil {
 
     // Thời gian token có hiệu lực (1 giờ)
-    private static final long JWT_TOKEN_VALIDITY = 100L * 365 * 24 * 60 * 60 * 1000; // 100 năm
+    private static final long JWT_TOKEN_VALIDITY = 60L * 60 * 1000; // 1 hour
 
 
     private final String secretString;
