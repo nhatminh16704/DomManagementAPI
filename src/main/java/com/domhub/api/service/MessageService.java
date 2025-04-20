@@ -1,9 +1,9 @@
 package com.domhub.api.service;
 
 import com.domhub.api.dto.request.MessageRequest;
-import com.domhub.api.dto.response.MessageDTO;
-import com.domhub.api.dto.response.MessageDetailDTO;
-import com.domhub.api.dto.response.SearchRoomDTO;
+import com.domhub.api.dto.response.*;
+import com.domhub.api.exception.AppException;
+import com.domhub.api.exception.ErrorCode;
 import com.domhub.api.model.Account;
 import com.domhub.api.model.Message;
 import com.domhub.api.model.MessageTo;
@@ -17,7 +17,6 @@ import com.domhub.api.repository.RoomRepository;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import com.domhub.api.dto.response.UserSearchDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +27,7 @@ import java.util.Optional;
 public class MessageService {
 
     private final AccountRepository accountRepository;
+    private final AccountService accountService;
     private final MessageRepository messageRepository;
     private final MessageToRepository messageToRepository;
     private final RoomRepository roomRepository;
@@ -40,25 +40,29 @@ public class MessageService {
                 .toList();
     }
 
-    public List<SearchRoomDTO> searchRoom(String keyword){
+    public List<SearchRoomDTO> searchRoom(String keyword) {
         List<Room> rooms = roomRepository.findByRoomNameContainingIgnoreCase(keyword);
-        List<SearchRoomDTO>  result = new ArrayList<>();
-        for (Room room : rooms){
+        List<SearchRoomDTO> result = new ArrayList<>();
+        for (Room room : rooms) {
             SearchRoomDTO searchRoomDTO = new SearchRoomDTO(room.getId(),
-            roomrentalRepository.findAccountIdsByRoomId(room.getId()),
-            room.getRoomName());
+                    roomrentalRepository.findAccountIdsByRoomId(room.getId()),
+                    room.getRoomName());
             result.add(searchRoomDTO);
         }
         return result;
     }
 
 
+    public ApiResponse<Void> createMessage(MessageRequest messageRequest) {
 
-    public String createMessage(MessageRequest messageRequest) {
+        if (!accountService.existsById(messageRequest.getSentBy())) {
+            throw new AppException(ErrorCode.USER_NOT_FOUND, "Sender not found");
+        }
 
-        Optional<Account> senderOpt = accountRepository.findById(messageRequest.getSentBy());
-        if (senderOpt.isEmpty()) {
-            throw new IllegalArgumentException("Sender not found: " + messageRequest.getSentBy());
+        for (Integer receiver : messageRequest.getReceivers()) {
+            if (!accountService.existsById(receiver)) {
+                throw new AppException(ErrorCode.USER_NOT_FOUND, "Receiver not found: " + receiver);
+            }
         }
 
         Message message = new Message();
@@ -67,9 +71,6 @@ public class MessageService {
         message.setSentBy(messageRequest.getSentBy());
         message = messageRepository.save(message);
 
-        if (message.getId() == null) {
-            throw new RuntimeException("Failed to generate ID for Message");
-        }
 
         for (Integer receiver : messageRequest.getReceivers()) {
             MessageToId messageToId = new MessageToId();
@@ -81,7 +82,7 @@ public class MessageService {
             messageToRepository.save(messageTo);
         }
 
-        return "Message created successfully!";
+        return ApiResponse.success("Message created successfully");
     }
 
     public List<MessageDTO> getMessagesByAccountId(Integer accountId) {

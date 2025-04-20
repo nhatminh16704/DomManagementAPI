@@ -3,6 +3,10 @@ package com.domhub.api.service;
 
 import com.domhub.api.dto.request.AccountRequest;
 import com.domhub.api.dto.request.ChangePasswordRequest;
+import com.domhub.api.dto.request.LoginRequest;
+import com.domhub.api.dto.response.ApiResponse;
+import com.domhub.api.exception.AppException;
+import com.domhub.api.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,6 +32,9 @@ public class AccountService {
     private final RoleRepository roleRepository;
     private final JwtUtil jwtUtil;
 
+    public boolean existsById(Integer id) {
+        return accountRepository.existsById(id);
+    }
 
     public Account createAccount(AccountRequest request) {
         String encodedPassword = passwordEncoder.encode(request.getPassword());
@@ -69,22 +76,23 @@ public class AccountService {
         throw new RuntimeException("account does not exist");
     }
 
-    public String login(String username, String password) {
-        Optional<Account> accountOptional = accountRepository.findByUserName(username);
+    public ApiResponse<String> login(LoginRequest request) {
+        Optional<Account> accountOptional = accountRepository.findByUserName(request.getUserName());
         if (accountOptional.isPresent()) {
             Account account = accountOptional.get();
-            if (passwordEncoder.matches(password, account.getPassword())) {
+            if (passwordEncoder.matches(request.getPassword(), account.getPassword())) {
                 // Tạo JWT token với thông tin bổ sung
                 Map<String, Object> claims = new HashMap<>();
                 claims.put("id", account.getId());
                 claims.put("role", account.getRole().getRoleName());  // Giả sử bạn có đối tượng `Role` trong `Account`
 
                 // Tạo token JWT
-                String jwtToken = jwtUtil.generateToken(username, claims);
-                return jwtToken; // Trả về JWT
+                String token = jwtUtil.generateToken(request.getUserName(), claims);
+                return ApiResponse.success(token, "Login successfully");
             }
+            throw new AppException(ErrorCode.WRONG_PASSWORD);
         }
-        throw new RuntimeException("Invalid username or password");
+        throw new AppException(ErrorCode.USER_NOT_FOUND);
     }
 
     public void deleteAccount(Integer id) {

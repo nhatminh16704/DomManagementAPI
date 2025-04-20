@@ -1,5 +1,6 @@
 package com.domhub.api.service;
 
+import com.domhub.api.dto.response.ApiResponse;
 import com.domhub.api.dto.response.DashboardDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,7 +14,7 @@ public class DashboardService {
     private final RoomRentalService roomRentalService;
     private final StaffService staffService;
 
-    public DashboardDTO getDashboard() {
+    public ApiResponse<DashboardDTO> getDashboard() {
         Long reportCount = reportService.count();
         Long roomCount = roomService.count();
         Long studentCount = studentService.count();
@@ -24,9 +25,8 @@ public class DashboardService {
         Long available = roomService.countAvailable();
 
 
-        return new DashboardDTO(reportCount, roomCount, studentCount, staffCount, revenue, totalRoomCapacity, available);
-
-
+        DashboardDTO dashboardDTO = new DashboardDTO(reportCount, roomCount, studentCount, staffCount, revenue, totalRoomCapacity, available);
+        return ApiResponse.success(dashboardDTO);
 
     }
 }

@@ -2,7 +2,9 @@ package com.domhub.api.controller;
 
 
 import com.domhub.api.dto.request.DeviceRoomRequest;
+import com.domhub.api.dto.response.ApiResponse;
 import com.domhub.api.service.DeviceRoomService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,39 +18,19 @@ public class DeviceRoomController {
     private final DeviceRoomService deviceRoomService;
 
     @PutMapping("/update-quantity")
-    public ResponseEntity<String> updateDeviceQuantityInRoom(@RequestBody DeviceRoomRequest deviceRoomRequest) {
-        try {
-            String result = deviceRoomService.updateQuantity(deviceRoomRequest);
-            return ResponseEntity.ok(result);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(404).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error updating device quantity: " + e.getMessage());
-        }
+    public ApiResponse<Void> updateDeviceQuantityInRoom(@RequestBody @Valid DeviceRoomRequest deviceRoomRequest) {
+            return  deviceRoomService.updateQuantity(deviceRoomRequest);
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<String> deleteDeviceFromRoom(@RequestBody DeviceRoomRequest deviceRoomRequest) {
-        try {
-            deviceRoomService.deleteDeviceFromRoom(deviceRoomRequest.getRoomId(), deviceRoomRequest.getDeviceId());
-            return ResponseEntity.ok("Device successfully removed from room");
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(404).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error deleting device from room: " + e.getMessage());
-        }
+    public ApiResponse<Void> deleteDeviceFromRoom(@RequestBody @Valid DeviceRoomRequest deviceRoomRequest) {
+            return deviceRoomService.deleteDeviceFromRoom(deviceRoomRequest.getRoomId(), deviceRoomRequest.getDeviceId());
+
     }
 
     @PostMapping("/add")
-    public ResponseEntity<String> addDeviceToRoom(@RequestBody DeviceRoomRequest deviceRoomRequest) {
-        try {
-            deviceRoomService.addDeviceToRoom(deviceRoomRequest);
-            return ResponseEntity.ok("Device successfully added to room");
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(404).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error adding device to room: " + e.getMessage());
-        }
+    public ApiResponse<Void> addDeviceToRoom(@RequestBody @Valid DeviceRoomRequest deviceRoomRequest) {
+            return deviceRoomService.addDeviceToRoom(deviceRoomRequest);
     }
 
 

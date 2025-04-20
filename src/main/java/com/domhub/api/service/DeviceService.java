@@ -1,5 +1,6 @@
 package com.domhub.api.service;
 
+import com.domhub.api.dto.response.ApiResponse;
 import com.domhub.api.model.Device;
 import com.domhub.api.repository.DeviceRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,7 @@ import java.util.List;
 public class DeviceService {
     private final DeviceRepository deviceRepository;
 
-    public List<Device> getAllDevices() {
-        return deviceRepository.findAll();
+    public ApiResponse<List<Device>> getAllDevices() {
+         return ApiResponse.success(deviceRepository.findAll());
     }
 }

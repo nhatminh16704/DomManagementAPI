@@ -2,6 +2,7 @@ package com.domhub.api.controller;
 
 import com.domhub.api.dto.request.ChangePasswordRequest;
 import com.domhub.api.dto.request.UpdateProfileRequest;
+import com.domhub.api.dto.response.ApiResponse;
 import com.domhub.api.dto.response.StudentDTO;
 import com.domhub.api.model.Student;
 import com.domhub.api.service.StudentService;
@@ -22,10 +23,9 @@ public class StudentController {
     private final StudentService studentService;
 
 
-    @GetMapping("/findAll")
-    public ResponseEntity<List<Student>> findAll() {
-        List<Student> students = studentService.getAllStudents();
-        return ResponseEntity.ok(students);
+    @GetMapping("/get-all")
+    public ApiResponse<List<Student>> findAll() {
+        return studentService.getAllStudents();
     }
 
     @GetMapping("/{id}")

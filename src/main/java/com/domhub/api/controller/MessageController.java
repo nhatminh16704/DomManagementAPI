@@ -2,12 +2,10 @@ package com.domhub.api.controller;
 
 
 import com.domhub.api.dto.request.MessageRequest;
-import com.domhub.api.dto.response.MessageDTO;
+import com.domhub.api.dto.response.*;
 import com.domhub.api.dto.response.MessageDetailDTO;
-import com.domhub.api.dto.response.MessageDetailDTO;
-import com.domhub.api.dto.response.SearchRoomDTO;
-import com.domhub.api.dto.response.UserSearchDTO;
 import com.domhub.api.service.MessageService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,18 +25,11 @@ public class MessageController {
 
     private final MessageService messageService;
 
-    // API tạo tin nhắn
+
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> createMessage(@RequestBody MessageRequest messageRequest) {
-        try {
-            String response = messageService.createMessage(messageRequest);
-            return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Lỗi hệ thống: " + e.getMessage());
-        }
+    public ApiResponse<Void> createMessage(@RequestBody @Valid MessageRequest messageRequest) {
+            return messageService.createMessage(messageRequest);
     }
 
     @GetMapping("/users/search")

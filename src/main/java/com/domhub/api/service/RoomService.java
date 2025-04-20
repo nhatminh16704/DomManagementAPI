@@ -11,8 +11,6 @@ import com.domhub.api.repository.RoomRentalRepository;
 import com.domhub.api.dto.response.RoomDetailDTO;
 
 
-
-
 import java.util.List;
 
 
@@ -36,7 +34,9 @@ public class RoomService {
         return roomRepository.sumByAvailable();
     }
 
-
+    public boolean existsById(Integer roomId) {
+        return roomRepository.existsById(roomId);
+    }
 
 
     public List<RoomDTO> getAllRooms() {

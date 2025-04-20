@@ -2,6 +2,7 @@ package com.domhub.api.service;
 
 import com.domhub.api.dto.request.ChangePasswordRequest;
 import com.domhub.api.dto.request.UpdateProfileRequest;
+import com.domhub.api.dto.response.ApiResponse;
 import com.domhub.api.dto.response.StudentDTO;
 import com.domhub.api.model.RoomRental;
 import com.domhub.api.model.Student;
@@ -38,8 +39,8 @@ public class StudentService {
         return studentRepository.count();
     }
 
-    public List<Student> getAllStudents() {
-        return studentRepository.findAll();
+    public ApiResponse<List<Student>> getAllStudents() {
+        return ApiResponse.success(studentRepository.findAll());
     }
 
     public Student getStudentByAccountID(Integer id) {

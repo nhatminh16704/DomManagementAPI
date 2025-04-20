@@ -4,6 +4,7 @@ import com.domhub.api.dto.response.RoomDTO;
 import com.domhub.api.model.Room;
 import com.domhub.api.model.Student;
 import com.domhub.api.repository.RoomRentalRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import com.domhub.api.dto.response.RoomDetailDTO;
 import com.domhub.api.dto.response.DeviceRoomDTO;
@@ -13,15 +14,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class RoomMapper {
 
     private final DeviceRoomRepository deviceRoomRepository;
     private final RoomRentalRepository roomRentalRepository;
 
-    public RoomMapper(DeviceRoomRepository deviceRoomRepository, RoomRentalRepository roomRentalRepository) {
-        this.deviceRoomRepository = deviceRoomRepository;
-        this.roomRentalRepository = roomRentalRepository;
-    }
+
 
     public RoomDetailDTO toRoomDetailDTO(Room room) {
         RoomDetailDTO roomDetailDTO = new RoomDetailDTO();
