@@ -28,7 +28,7 @@ public interface MessageToRepository extends JpaRepository<MessageTo, MessageToI
     Optional<MessageTo> findById_MessageIdAndId_Receiver(Integer messageId, Integer accountId);
 
     @Query("SELECT COUNT(mt) FROM MessageTo mt WHERE mt.id.receiver = :accountId AND mt.isRead = false")
-    int countUnreadMessagesByAccountId(@Param("accountId") Integer accountId);
+    Integer countUnreadMessagesByAccountId(@Param("accountId") Integer accountId);
 
 
 }

@@ -36,6 +36,14 @@ public class AccountService {
         return accountRepository.existsById(id);
     }
 
+    public void validateAccountExists(Integer accountId) {
+        if (!existsById(accountId)) {
+            throw new AppException(ErrorCode.USER_NOT_FOUND, "Account not found");
+        }
+    }
+
+
+
     public Account createAccount(AccountRequest request) {
         String encodedPassword = passwordEncoder.encode(request.getPassword());
 

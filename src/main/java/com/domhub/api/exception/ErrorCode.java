@@ -21,11 +21,14 @@ public enum ErrorCode {
     WRONG_PASSWORD(3004, "Wrong password"),
 
 
+
     // Business errors (4000-4999)
     DEVICE_NOT_FOUND(4000, "Device not found"),
     DEVICE_NOT_FOUND_IN_ROOM(4001, "Device not found in room"),
     DEVICE_ALREADY_EXISTS_IN_ROOM(4002, "Device already exists in room"),
     ROOM_NOT_FOUND(4003, "Room not found"),
+    MESSAGE_NOT_FOUND(4004, "Message not found"),
+    MESSAGE_TO_NOT_FOUND(4005, "Message recipient not found"),
 
 
     // Server errors (5000-5999)

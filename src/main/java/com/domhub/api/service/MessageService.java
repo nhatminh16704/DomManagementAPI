@@ -33,14 +33,14 @@ public class MessageService {
     private final RoomRepository roomRepository;
     private final RoomRentalRepository roomrentalRepository;
 
-    public List<UserSearchDTO> searchUsers(String keyword) {
-        return accountRepository.findByUserNameStartingWith(keyword)
+    public ApiResponse<List<UserSearchDTO>> searchUsers(String keyword) {
+        return ApiResponse.success(accountRepository.findByUserNameStartingWith(keyword)
                 .stream()
                 .map(account -> new UserSearchDTO(account.getId(), account.getUserName()))
-                .toList();
+                .toList());
     }
 
-    public List<SearchRoomDTO> searchRoom(String keyword) {
+    public ApiResponse<List<SearchRoomDTO>> searchRoom(String keyword) {
         List<Room> rooms = roomRepository.findByRoomNameContainingIgnoreCase(keyword);
         List<SearchRoomDTO> result = new ArrayList<>();
         for (Room room : rooms) {
@@ -49,7 +49,7 @@ public class MessageService {
                     room.getRoomName());
             result.add(searchRoomDTO);
         }
-        return result;
+        return ApiResponse.success(result);
     }
 
 
@@ -85,57 +85,51 @@ public class MessageService {
         return ApiResponse.success("Message created successfully");
     }
 
-    public List<MessageDTO> getMessagesByAccountId(Integer accountId) {
-        if (accountId == null) {
-            throw new IllegalArgumentException("Account ID cannot be null");
+    public ApiResponse<List<MessageDTO>> getMessagesByAccountId(Integer accountId) {
+        if (!accountService.existsById(accountId)) {
+            throw new AppException(ErrorCode.USER_NOT_FOUND, "Account not found");
         }
-        return messageToRepository.findMessagesByReceiver(accountId);
+        return ApiResponse.success(messageToRepository.findMessagesByReceiver(accountId));
     }
 
-    public MessageDetailDTO getMessageById(Integer messageId) {
-        if (messageId == null) {
-            throw new IllegalArgumentException("Message ID cannot be null");
-        }
-        Message message = messageRepository.findById(messageId)
-                .orElseThrow(() -> new IllegalArgumentException("Message not found: " + messageId));
-        Account sender = accountRepository.findById(message.getSentBy())
-                .orElseThrow(() -> new IllegalArgumentException("Sender not found: " + message.getSentBy()));
+    public ApiResponse<MessageDetailDTO> getMessageById(Integer messageId) {
 
-        return new MessageDetailDTO(
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new AppException(ErrorCode.MESSAGE_NOT_FOUND));
+
+        Account sender = accountRepository.findById(message.getSentBy())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND, "Sender not found"));
+
+        return ApiResponse.success(new MessageDetailDTO(
                 message.getId(),
                 message.getTitle(),
                 message.getContent(),
                 sender.getUserName(),
-                message.getDate()
+                message.getDate())
         );
     }
 
-    public void markMessageAsRead(Integer messageId, Integer accountId) {
-        if (messageId == null) {
-            throw new IllegalArgumentException("Message ID cannot be null");
-        }
+    public ApiResponse<Void> markMessageAsRead(Integer messageId, Integer accountId) {
+
         MessageTo messageTo = messageToRepository.findById_MessageIdAndId_Receiver(messageId, accountId)
-                .orElseThrow(() -> new IllegalArgumentException("Message not found: " + messageId));
+                .orElseThrow(() -> new AppException(ErrorCode.MESSAGE_TO_NOT_FOUND));
         messageTo.setRead(true);
         messageToRepository.save(messageTo);
+        return ApiResponse.success("Message marked as read successfully");
     }
 
-    public int countUnreadMessagesByAccountId(Integer accountId) {
-        if (accountId == null) {
-            throw new IllegalArgumentException("Account ID cannot be null");
+    public ApiResponse<Integer> countUnreadMessagesByAccountId(Integer accountId) {
+        if (!accountService.existsById(accountId)) {
+            throw new AppException(ErrorCode.USER_NOT_FOUND, "Account not found");
         }
-        return messageToRepository.countUnreadMessagesByAccountId(accountId);
+        return ApiResponse.success(messageToRepository.countUnreadMessagesByAccountId(accountId));
     }
 
-    public List<MessageDTO> getMessagesSentByAccountId(Integer accountId) {
-        if (accountId == null) {
-            throw new IllegalArgumentException("Account ID cannot be null");
+    public ApiResponse<List<MessageDTO>> getMessagesSentByAccountId(Integer accountId) {
+        if (!accountService.existsById(accountId)) {
+            throw new AppException(ErrorCode.USER_NOT_FOUND, "Account not found");
         }
-        Optional<Account> accountOpt = accountRepository.findById(accountId);
-        if (accountOpt.isEmpty()) {
-            throw new IllegalArgumentException("Account not found: " + accountId);
-        }
+        return ApiResponse.success(messageRepository.findMessagesForAdmin(accountId));
 
-        return messageRepository.findMessagesForAdmin(accountId);
     }
 }
