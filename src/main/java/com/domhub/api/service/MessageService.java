@@ -55,14 +55,10 @@ public class MessageService {
 
     public ApiResponse<Void> createMessage(MessageRequest messageRequest) {
 
-        if (!accountService.existsById(messageRequest.getSentBy())) {
-            throw new AppException(ErrorCode.USER_NOT_FOUND, "Sender not found");
-        }
+        accountService.validateAccountExists(messageRequest.getSentBy(), "Sender not found");
 
         for (Integer receiver : messageRequest.getReceivers()) {
-            if (!accountService.existsById(receiver)) {
-                throw new AppException(ErrorCode.USER_NOT_FOUND, "Receiver not found: " + receiver);
-            }
+            accountService.validateAccountExists(receiver, "Receiver not found");
         }
 
         Message message = new Message();
@@ -86,9 +82,7 @@ public class MessageService {
     }
 
     public ApiResponse<List<MessageDTO>> getMessagesByAccountId(Integer accountId) {
-        if (!accountService.existsById(accountId)) {
-            throw new AppException(ErrorCode.USER_NOT_FOUND, "Account not found");
-        }
+        accountService.validateAccountExists(accountId, "Account not found");
         return ApiResponse.success(messageToRepository.findMessagesByReceiver(accountId));
     }
 
@@ -119,16 +113,12 @@ public class MessageService {
     }
 
     public ApiResponse<Integer> countUnreadMessagesByAccountId(Integer accountId) {
-        if (!accountService.existsById(accountId)) {
-            throw new AppException(ErrorCode.USER_NOT_FOUND, "Account not found");
-        }
+        accountService.validateAccountExists(accountId, "Account not found");
         return ApiResponse.success(messageToRepository.countUnreadMessagesByAccountId(accountId));
     }
 
     public ApiResponse<List<MessageDTO>> getMessagesSentByAccountId(Integer accountId) {
-        if (!accountService.existsById(accountId)) {
-            throw new AppException(ErrorCode.USER_NOT_FOUND, "Account not found");
-        }
+        accountService.validateAccountExists(accountId, "Account not found");
         return ApiResponse.success(messageRepository.findMessagesForAdmin(accountId));
 
     }
