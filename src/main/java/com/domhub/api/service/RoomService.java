@@ -1,7 +1,13 @@
 package com.domhub.api.service;
 
+import com.domhub.api.dto.response.ApiResponse;
+import com.domhub.api.dto.response.DeviceRoomDTO;
+import com.domhub.api.exception.AppException;
+import com.domhub.api.exception.ErrorCode;
 import com.domhub.api.mapper.RoomMapper;
 import com.domhub.api.model.Room;
+import com.domhub.api.model.Student;
+import com.domhub.api.repository.DeviceRoomRepository;
 import com.domhub.api.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,8 +24,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RoomService {
     private final RoomRepository roomRepository;
-    private final RoomMapper roomMapper;
     private final RoomRentalRepository roomRentalRepository;
+    private final RoomMapper roomMapper;
+    private final DeviceRoomRepository deviceRoomRepository;
 
 
     public long count() {
@@ -39,9 +46,9 @@ public class RoomService {
     }
 
 
-    public List<RoomDTO> getAllRooms() {
+    public ApiResponse<List<RoomDTO>> getAllRooms() {
         List<Room> rooms = roomRepository.findAll();
-        return roomMapper.toDTOList(rooms);
+        return ApiResponse.success(roomMapper.toDTOs(rooms));
     }
 
     public void reserveRoom(Integer rentalId) {
@@ -91,10 +98,10 @@ public class RoomService {
 
     }
 
-    public RoomDetailDTO getRoomDetail(Integer roomId) {
+    public ApiResponse<RoomDetailDTO> getRoomDetail(Integer roomId) {
         Room room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new RuntimeException("Room not found with id: " + roomId));
-        return roomMapper.toRoomDetailDTO(room);
+                .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
+        return ApiResponse.success(toRoomDetailDTO(room));
     }
 
     public Room getRoomById(Integer roomId) {
@@ -102,5 +109,15 @@ public class RoomService {
                 .orElseThrow(() -> new RuntimeException("Room not found with id: " + roomId));
     }
 
+
+    public RoomDetailDTO toRoomDetailDTO(Room room) {
+        RoomDetailDTO roomDetailDTO = new RoomDetailDTO();
+        roomDetailDTO.setRoom(roomMapper.toDTO(room));
+        List<DeviceRoomDTO> deviceDTOs = deviceRoomRepository.findDevicesByRoomId(room.getId());
+        List<Student> students = roomRentalRepository.findStudentsByRoomId(room.getId());
+        roomDetailDTO.setStudents(students);
+        roomDetailDTO.setDevices(deviceDTOs);
+        return roomDetailDTO;
+    }
 
 }

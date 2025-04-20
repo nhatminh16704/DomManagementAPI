@@ -1,5 +1,6 @@
 package com.domhub.api.controller;
 
+import com.domhub.api.dto.response.ApiResponse;
 import com.domhub.api.dto.response.RoomDTO;
 import com.domhub.api.service.RoomService;
 import org.springframework.http.ResponseEntity;
@@ -20,23 +21,15 @@ public class RoomController {
         this.roomService = roomService;
     }
 
-    @GetMapping("/findAll")
-    public ResponseEntity<List<RoomDTO>> findAll() {
-        List<RoomDTO> rooms = roomService.getAllRooms();
-        return ResponseEntity.ok(rooms);
+    @GetMapping("/get-all")
+    public ApiResponse<List<RoomDTO>> findAll() {
+        return roomService.getAllRooms();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getRoomDetail(@PathVariable("id") Integer id) {
-        try {
-            RoomDetailDTO roomDetail = roomService.getRoomDetail(id);
-            return ResponseEntity.ok(roomDetail); // 200 OK
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage()); // 400 Bad Request
-        }
+    public ApiResponse<RoomDetailDTO> getRoomDetail(@PathVariable("id") Integer id) {
+        return roomService.getRoomDetail(id);
     }
-
-
 
 
 }
