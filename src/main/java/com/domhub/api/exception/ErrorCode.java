@@ -29,6 +29,10 @@ public enum ErrorCode {
     ROOM_NOT_FOUND(4003, "Room not found"),
     MESSAGE_NOT_FOUND(4004, "Message not found"),
     MESSAGE_TO_NOT_FOUND(4005, "Message recipient not found"),
+    REPORT_NOT_FOUND(4006, "Report not found"),
+    BILLING_NOT_FOUND(4007, "Billing not found"),
+    INVALID_ELECTRICITY_END(4008, "Invalid electric end"),
+    STUDENT_NOT_REGISTERED_ROOM(4009, "Student not registered in room"),
 
 
     // Server errors (5000-5999)

@@ -1,6 +1,11 @@
 package com.domhub.api.service;
 
 import com.domhub.api.dto.request.ReportRequest;
+import com.domhub.api.dto.response.ApiResponse;
+import com.domhub.api.exception.AppException;
+import com.domhub.api.exception.ErrorCode;
+import com.domhub.api.mapper.AccountMapper;
+import com.domhub.api.mapper.ReportMapper;
 import com.domhub.api.model.Account;
 import com.domhub.api.model.Report;
 import com.domhub.api.repository.AccountRepository;
@@ -22,71 +27,59 @@ import java.util.List;
 public class ReportService {
 
     private final ReportRepository reportRepository;
-    private final HttpServletRequest request;
+    private final HttpServletRequest httpServletRequest;
     private final JwtUtil jwtUtil;
     private final AccountRepository accountRepository;
-    DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
+    private final AccountService accountService;
+    private final ReportMapper reportMapper;
 
-    public Report createReport(ReportRequest reportRequest) {
-        String authHeader = request.getHeader("Authorization");
-        Account account = accountRepository.findById(jwtUtil.extractAccountIdFromHeader(authHeader)).orElseThrow(() -> new RuntimeException("Tài khoản không tồn tại"));
-        Report report = new Report();
+    public ApiResponse<Void> createReport(ReportRequest reportRequest) {
+        String authHeader = httpServletRequest.getHeader("Authorization");
+        Account account = accountRepository.findById(jwtUtil.extractAccountIdFromHeader(authHeader))
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        Report report = reportMapper.toEntity(reportRequest);
         report.setCreatedBy(account);
-        report.setTitle(reportRequest.getTitle());
-        report.setContent(reportRequest.getContent());
-        report.setSentDate(LocalDateTime.parse(reportRequest.getSentDate(), formatter));
-        report.setStatus(Report.ReportStatus.valueOf(reportRequest.getStatus()));
-        return reportRepository.save(report);
+        reportRepository.save(report);
+
+        return ApiResponse.success("Report created successfully");
     }
 
 
-    public List<ReportDTO> findAllReports() {
-        String authHeader = request.getHeader("Authorization");
+    public ApiResponse<List<ReportDTO>> findAllReports() {
+
+        String authHeader = httpServletRequest.getHeader("Authorization");
+        accountService.validateAccountExists(jwtUtil.extractAccountIdFromHeader(authHeader), "Account not found");
+
         if (jwtUtil.extractRoleFromHeader(authHeader).equals("STUDENT")) {
-            return reportRepository.findByCreatedBy_Id(jwtUtil.extractAccountIdFromHeader(authHeader)).stream()
-                    .map(report -> new ReportDTO(
-                            report.getId(),
-                            report.getCreatedBy().toAccountDTO(),
-                            report.getTitle(),
-                            report.getContent(),
-                            report.getSentDate(),
-                            report.getStatus().name()
-                    ))
-                    .collect(Collectors.toList());
+            List<Report> reports = reportRepository.findByCreatedBy_Id(jwtUtil.extractAccountIdFromHeader(authHeader));
+            return ApiResponse.success(reportMapper.toDTOs(reports));
+
         }
-        return reportRepository.findAll().stream()
-                .map(report -> new ReportDTO(
-                        report.getId(),
-                        report.getCreatedBy().toAccountDTO(),
-                        report.getTitle(),
-                        report.getContent(),
-                        report.getSentDate(),
-                        report.getStatus().name()
-                ))
-                .collect(Collectors.toList());
+        List<Report> reports = reportRepository.findAll();
+        return ApiResponse.success(reportMapper.toDTOs(reports));
+
     }
 
     public long count() {
         return reportRepository.count();
     }
 
-    public String updateReportStatus(Integer id, String status) {
-        Report report = reportRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Report not found with ID: " + id));
+    public ApiResponse<Void> updateReportStatus(Integer id, String status) {
 
-        try {
-            Report.ReportStatus newStatus = Report.ReportStatus.valueOf(status.toUpperCase());
-            report.setStatus(newStatus);
-            reportRepository.save(report);
-            return "Report status updated successfully to " + newStatus;
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid status: " + status);
-        }
+        Report report = reportRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.REPORT_NOT_FOUND));
+
+        Report.ReportStatus newStatus = Report.ReportStatus.valueOf(status);
+        report.setStatus(newStatus);
+        reportRepository.save(report);
+        return ApiResponse.success("Report updated successfully");
+
     }
 
-    public String deleteReport(Integer id) {
+    public ApiResponse<Void> deleteReport(Integer id) {
         Report report = reportRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Report not found with ID: " + id));
+                .orElseThrow(() -> new AppException(ErrorCode.REPORT_NOT_FOUND));
         reportRepository.delete(report);
-        return "Report deleted successfully with ID: " + id;
+        return ApiResponse.success("Report deleted successfully");
     }
 }

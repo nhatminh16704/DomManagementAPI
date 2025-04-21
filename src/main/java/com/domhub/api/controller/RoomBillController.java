@@ -1,9 +1,12 @@
 package com.domhub.api.controller;
 
 import com.domhub.api.dto.request.ElectricityUpdateRequest;
+import com.domhub.api.dto.response.ApiResponse;
 import com.domhub.api.dto.response.RoomBillDTO;
 import com.domhub.api.model.RoomBill;
 import com.domhub.api.service.RoomBillService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -25,11 +28,14 @@ public class RoomBillController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public List<RoomBillDTO> getBills(
+    public ApiResponse<List<RoomBillDTO>> getBills(
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate month,
-            @RequestParam(required = false) RoomBill.BillStatus status
+            @RequestParam(required = false)
+            @Pattern(regexp = "PAID|UNPAID|PENDING", message = "Status must be one of: PAID, UNPAID, PENDING")
+            String status
+
     ) {
         if (month != null && status != null) {
             return roomBillService.getAllByMonthAndStatus(month, status);
@@ -37,14 +43,8 @@ public class RoomBillController {
         return roomBillService.getAll();
     }
 
-    // Tạo hóa đơn mới - chỉ ADMIN được gọi
-    @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public RoomBill createBill(@RequestBody RoomBill bill) {
-        return roomBillService.create(bill);
-    }
 
-    // Lấy bill theo phòng và tháng - user thường cũng có thể xem (không cần restrict)
+
     @GetMapping("/{roomId}")
     public RoomBill getByRoomAndMonth(
             @PathVariable Integer roomId,
@@ -57,22 +57,15 @@ public class RoomBillController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/electricity")
-    public ResponseEntity<RoomBill> updateElectricity(@RequestBody ElectricityUpdateRequest request) {
-        RoomBill updated = roomBillService.updateElectricityEnd(
-                request.getRoomId(),
-                request.getBillMonth(),
-                request.getNewEnd()
-        );
-        return ResponseEntity.ok(updated);
+    public ApiResponse<Void> updateElectricity(@RequestBody @Valid ElectricityUpdateRequest request) {
+        return roomBillService.updateElectricityEnd(request);
     }
 
     @PreAuthorize("hasRole('STUDENT')")
     @GetMapping("/student")
-    public ResponseEntity<List<RoomBillDTO>> getStudentBills(
-            @RequestHeader("Authorization") String authHeader) {
+    public ApiResponse<List<RoomBillDTO>> getStudentBills() {
+        return roomBillService.getStudentBills();
 
-        List<RoomBillDTO> bills = roomBillService.getStudentBills(authHeader);
-        return ResponseEntity.ok(bills);
     }
 
 

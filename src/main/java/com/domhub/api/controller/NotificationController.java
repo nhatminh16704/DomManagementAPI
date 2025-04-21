@@ -1,5 +1,7 @@
 package com.domhub.api.controller;
 
+import com.domhub.api.dto.response.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,22 +22,15 @@ public class NotificationController {
 
     private final NotificationService notificationService;
 
-    @GetMapping("/findAll")
-    public ResponseEntity<List<NotificationDTO>> getAllNotifications() {
-        List<NotificationDTO> notifications = notificationService.getAllNotifications();
-        return ResponseEntity.ok(notifications);
+    @GetMapping
+    public ApiResponse<List<NotificationDTO>> getAllNotifications() {
+        return notificationService.getAllNotifications();
     }
 
-    @PostMapping("/create")      
+    @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> createNotification(@RequestBody NotificationRequest request) {
-        String result = notificationService.createNotification(request);
-
-        if (!result.contains("successfully")) {
-            return ResponseEntity.badRequest().body(result);
-        }
-        return ResponseEntity.ok(result);
+    public ApiResponse<Void> createNotification(@RequestBody @Valid NotificationRequest request) {
+        return notificationService.createNotification(request);
     }
-
     
 }

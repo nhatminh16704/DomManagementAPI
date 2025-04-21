@@ -17,18 +17,18 @@ import org.springframework.web.bind.annotation.*;
 public class DeviceRoomController {
     private final DeviceRoomService deviceRoomService;
 
-    @PutMapping("/update-quantity")
+    @PutMapping
     public ApiResponse<Void> updateDeviceQuantityInRoom(@RequestBody @Valid DeviceRoomRequest deviceRoomRequest) {
             return  deviceRoomService.updateQuantity(deviceRoomRequest);
     }
 
-    @DeleteMapping("/delete")
+    @DeleteMapping
     public ApiResponse<Void> deleteDeviceFromRoom(@RequestBody @Valid DeviceRoomRequest deviceRoomRequest) {
             return deviceRoomService.deleteDeviceFromRoom(deviceRoomRequest.getRoomId(), deviceRoomRequest.getDeviceId());
 
     }
 
-    @PostMapping("/add")
+    @PostMapping
     public ApiResponse<Void> addDeviceToRoom(@RequestBody @Valid DeviceRoomRequest deviceRoomRequest) {
             return deviceRoomService.addDeviceToRoom(deviceRoomRequest);
     }

@@ -14,6 +14,6 @@ public class NotificationDTO {
     private String title;
     private String content;
     private String type;
-    private LocalDate create_date;
-    private String name_person_create;
+    private LocalDate createDate;
+    private String createdBy;
 }

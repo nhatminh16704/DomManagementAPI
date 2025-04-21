@@ -1,17 +1,20 @@
 package com.domhub.api.service;
 
+import com.domhub.api.dto.response.ApiResponse;
+import com.domhub.api.mapper.NotificationMapper;
+import com.domhub.api.model.Account;
 import com.domhub.api.model.Notification;
 import com.domhub.api.model.Staff;
-import com.domhub.api.controller.NotificationController;
 import com.domhub.api.dto.request.NotificationRequest;
 import com.domhub.api.dto.response.NotificationDTO;
 import com.domhub.api.repository.NotificationRepository;
 import com.domhub.api.repository.StaffRepository;
 
+import com.domhub.api.security.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -19,39 +22,29 @@ import java.util.List;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
-    private final StaffRepository staffRepository;
+    private final NotificationMapper notificationMapper;
+    private final HttpServletRequest httpServletRequest;
+    private final JwtUtil jwtUtil;
+    private final AccountService accountService;
 
 
-    public List<NotificationDTO> getAllNotifications() {
+    public ApiResponse<List<NotificationDTO>> getAllNotifications() {
         List<Notification> notifications = notificationRepository.findAll();
-        List<NotificationDTO> notificationDTOs= new ArrayList<>();
-        for(Notification notification : notifications){
-            Staff staff = staffRepository.findByAccountId(notification.getCreatedBy()).orElseThrow(() -> new RuntimeException("Staff not found with id: " + notification.getCreatedBy()));;
-            notificationDTOs.add(new NotificationDTO(notification.getId(), notification.getTitle(), notification.getContent(), notification.getType().toString(), notification.getCreatedDate(), staff.getFirstName()+" "+ staff.getLastName()));
-        }
-        return notificationDTOs;
+        List<NotificationDTO> notificationDTOs = notificationMapper.toDTOs(notifications);
+        return ApiResponse.success(notificationDTOs);
     }
 
-    public String createNotification(NotificationRequest request) {
-        try {
-            Notification notification = new Notification();
-            notification.setTitle(request.getTitle());
-            notification.setContent(request.getContent());
+    public ApiResponse<Void> createNotification(NotificationRequest request) {
+        String token = httpServletRequest.getHeader("Authorization");
+        Integer accountId = jwtUtil.extractAccountIdFromHeader(token);
+        Account createdBy = accountService.findById(accountId);
 
-            // Convert type safely
-            try {
-                notification.setType(Notification.NotificationType.valueOf(request.getType().toUpperCase()));
-            } catch (IllegalArgumentException e) {
-                return "Invalid notification type: " + request.getType();
-            }
+        Notification notification = notificationMapper.toEntity(request);
+        notification.setCreatedBy(createdBy);
+        notificationRepository.save(notification);
 
-            notification.setCreatedBy(request.getCreatedBy());
+        return ApiResponse.success("Notification created successfully");
 
-            notificationRepository.save(notification);
-            return "Notification created successfully";
-        } catch (Exception e) {
-            return "Notification creation failed: " + e.getMessage();
-        }
     }
 
 }

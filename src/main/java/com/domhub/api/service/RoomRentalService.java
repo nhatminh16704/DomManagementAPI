@@ -1,6 +1,8 @@
 package com.domhub.api.service;
 
 import com.domhub.api.dto.response.RoomRentalDTO;
+import com.domhub.api.exception.AppException;
+import com.domhub.api.exception.ErrorCode;
 import com.domhub.api.model.RoomRental;
 import com.domhub.api.model.Student;
 import com.domhub.api.repository.RegistrationPeriodRepository;
@@ -96,7 +98,7 @@ public class RoomRentalService {
     public Integer getCurrentRoomByStudentId(Integer studentId) {
         return roomRentalRepository.findByStudentIdAndStatus(studentId, RoomRental.Status.ACTIVE)
                 .map(RoomRental::getRoomId)
-                .orElse(null);
+                .orElseThrow(() -> new AppException(ErrorCode.STUDENT_NOT_REGISTERED_ROOM));
     }
 
 

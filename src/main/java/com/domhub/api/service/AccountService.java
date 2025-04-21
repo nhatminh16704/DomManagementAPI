@@ -42,6 +42,11 @@ public class AccountService {
         }
     }
 
+    public Account findById(Integer id) {
+        return accountRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND, "Account not found with id " + id));
+    }
+
 
 
 

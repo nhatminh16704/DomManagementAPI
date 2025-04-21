@@ -29,12 +29,12 @@ public class RegistrationPeriodController {
 
     private final RegistrationPeriodService registrationPeriodService;
 
-    @GetMapping("/getAll")
+    @GetMapping
     public List<RegistrationPeriodDTO> getMethodName() {
         return registrationPeriodService.getAll();
     }
 
-    @PostMapping("/create")      
+    @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> createRegistrantion(@RequestBody RegistrationPeriodRequest request) {
         try {

@@ -1,11 +1,16 @@
 package com.domhub.api.service;
 
+import com.domhub.api.dto.request.ElectricityUpdateRequest;
+import com.domhub.api.dto.response.ApiResponse;
 import com.domhub.api.dto.response.RoomBillDTO;
+import com.domhub.api.exception.AppException;
+import com.domhub.api.exception.ErrorCode;
 import com.domhub.api.model.Room;
 import com.domhub.api.model.RoomBill;
 import com.domhub.api.repository.RoomBillRepository;
 import com.domhub.api.repository.RoomRepository;
 import com.domhub.api.security.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -25,27 +30,26 @@ public class RoomBillService {
     private final JwtUtil jwtUtil;
     private final StudentService studentService;
     private final RoomRentalService roomRentalService;
+    private final RoomService roomService;
+    private final HttpServletRequest httpServletRequest;
+    private final AccountService accountService;
 
 
-    public List<RoomBillDTO> getAll() {
-        return roomBillRepository.findAllRoomBills();
+    public ApiResponse<List<RoomBillDTO>> getAll() {
+        return ApiResponse.success(roomBillRepository.findAllRoomBills());
     }
 
 
-    public List<RoomBillDTO> getAllByMonthAndStatus(LocalDate billMonth, RoomBill.BillStatus status) {
-        return roomBillRepository.findAllByBillMonthAndStatus(billMonth, status);
+    public ApiResponse<List<RoomBillDTO>> getAllByMonthAndStatus(LocalDate billMonth, String status) {
+        return ApiResponse.success(roomBillRepository.findAllByBillMonthAndStatus(billMonth, status));
     }
 
-
-    public RoomBill create(RoomBill bill) {
-        return roomBillRepository.save(bill);
-    }
 
     public Optional<RoomBill> getByRoomIdAndMonth(Integer roomId, LocalDate billMonth) {
         return roomBillRepository.findByRoomIdAndBillMonth(roomId, billMonth);
     }
 
-    @Scheduled(cron = "0 0 0 1 * ?") // Run at 00:00:00 on the first day of each month // mỗi phút chạy 1 lần
+    @Scheduled(cron = "0 0 0 1 * ?") // Run at 00:00:00 on the first day of each month
     public void generateMonthlyRoomBills() {
         LocalDate currentMonth = LocalDate.now().withDayOfMonth(1);         // 2025-04-01
         LocalDate lastMonth = currentMonth.minusMonths(1);                  // 2025-03-01
@@ -75,18 +79,26 @@ public class RoomBillService {
 
     private static final int ELECTRIC_UNIT_PRICE = 3000;
 
-    public RoomBill updateElectricityEnd(Integer roomId, LocalDate billMonth, int newEndReading) {
+    public ApiResponse<Void> updateElectricityEnd(ElectricityUpdateRequest request) {
+        if(!roomService.existsById(request.getRoomId())) {
+            throw new AppException(ErrorCode.ROOM_NOT_FOUND);
+        }
 
-        RoomBill bill = roomBillRepository.findByRoomIdAndBillMonth(roomId, billMonth)
-                .orElseThrow(() -> new RuntimeException("Bill not found"));
+        RoomBill bill = roomBillRepository.findByRoomIdAndBillMonth(request.getRoomId(), request.getBillMonth())
+                .orElseThrow(() -> new AppException(ErrorCode.BILLING_NOT_FOUND));
 
-        bill.setElectricityEnd(newEndReading);
+        if(bill.getElectricityStart() > request.getNewEnd()){
+            throw new AppException(ErrorCode.INVALID_ELECTRICITY_END);
+        }
 
-        int usage = newEndReading - bill.getElectricityStart();
+        bill.setElectricityEnd(request.getNewEnd());
+
+        int usage = request.getNewEnd() - bill.getElectricityStart();
         bill.setTotalAmount(BigDecimal.valueOf(usage).multiply(BigDecimal.valueOf(ELECTRIC_UNIT_PRICE)));
         bill.setStatus(RoomBill.BillStatus.UNPAID);
+        roomBillRepository.save(bill);
 
-        return roomBillRepository.save(bill);
+        return ApiResponse.success("Electricity bill updated successfully");
     }
 
     public boolean isBillUnpaid(Integer billId) {
@@ -102,17 +114,17 @@ public class RoomBillService {
         return roomBillRepository.save(roomBill);
     }
 
-    public List<RoomBillDTO> getStudentBills(String authHeader) {
+    public ApiResponse<List<RoomBillDTO>> getStudentBills() {
+        String authHeader = httpServletRequest.getHeader("Authorization");
         Integer accountId = jwtUtil.extractAccountIdFromHeader(authHeader);
-        if (accountId == null) return Collections.emptyList();
+
+        accountService.validateAccountExists(accountId, "Account not found");
 
         Integer studentId = studentService.getStudentIdByAccountId(accountId);
-        if (studentId == null) return Collections.emptyList();
 
         Integer roomId = roomRentalService.getCurrentRoomByStudentId(studentId);
-        if (roomId == null) return Collections.emptyList();
 
-        return roomBillRepository.findAllByRoomId(roomId);
+        return ApiResponse.success(roomBillRepository.findAllByRoomId(roomId));
     }
 
 

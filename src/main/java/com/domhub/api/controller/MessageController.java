@@ -9,16 +9,13 @@ import com.domhub.api.service.MessageService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 
 import java.util.List;
-import java.util.Map;
 
 
 @RestController
@@ -30,7 +27,7 @@ public class MessageController {
     private final MessageService messageService;
 
 
-    @PostMapping("/create")
+    @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> createMessage(@RequestBody @Valid MessageRequest messageRequest) {
         return messageService.createMessage(messageRequest);
