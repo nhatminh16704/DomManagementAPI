@@ -1,27 +1,28 @@
 package com.domhub.api.service;
 
-import com.domhub.api.dto.request.ChangePasswordRequest;
+import com.domhub.api.dto.request.StudentRequest;
 import com.domhub.api.dto.request.UpdateProfileRequest;
 import com.domhub.api.dto.response.ApiResponse;
+import com.domhub.api.dto.response.RoomRentalDTO;
 import com.domhub.api.dto.response.StudentDTO;
+import com.domhub.api.dto.response.ViolationDTO;
+import com.domhub.api.exception.AppException;
+import com.domhub.api.exception.ErrorCode;
+import com.domhub.api.mapper.RoomRentalMapper;
+import com.domhub.api.mapper.StudentMapper;
 import com.domhub.api.model.RoomRental;
 import com.domhub.api.model.Student;
 import com.domhub.api.repository.StudentRepository;
 import com.domhub.api.security.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 
-import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import com.domhub.api.mapper.StudentMapper;
+import com.domhub.api.mapper.StudentMapper2;
 import com.domhub.api.model.Account;
 import com.domhub.api.dto.request.AccountRequest;
-import com.domhub.api.security.JwtUtil;
 
 import java.util.Optional;
-
-import jakarta.servlet.http.HttpServletRequest;
-
 import java.util.List;
 
 
@@ -29,10 +30,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StudentService {
     private final StudentRepository studentRepository;
-    private final StudentMapper studentMapper;
+    private final StudentMapper2 studentMapper2;
     private final AccountService accountService;
     private final HttpServletRequest request;
     private final JwtUtil jwtUtil;
+    private final StudentMapper studentMapper;
 
 
     public long count() {
@@ -43,19 +45,11 @@ public class StudentService {
         return ApiResponse.success(studentRepository.findAll());
     }
 
-    public Student getStudentByAccountID(Integer id) {
-        return studentRepository.findByAccountId(id).orElse(null);
-    }
 
-    public StudentDTO getStudentById(Integer id) {
-        Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Student not found with id " + id));
-        return studentMapper.toDTO(student);
-    }
-
-    public Student getStudentByAccountIdFromStudent() {
+    public ApiResponse<Student> getStudentByAccountIdFromStudent() {
         String authHeader = request.getHeader("Authorization");
-        return getStudentByAccountId(jwtUtil.extractAccountIdFromHeader(authHeader));
+        Student student = getStudentByAccountId(jwtUtil.extractAccountIdFromHeader(authHeader));
+        return ApiResponse.success(student);
     }
 
 
@@ -66,60 +60,61 @@ public class StudentService {
 
 
     public Student getStudentByAccountId(Integer accountId) {
-        return studentRepository.findByAccountId(accountId).orElse(null);
+        return studentRepository.findByAccountId(accountId).orElseThrow(() -> new AppException(ErrorCode.STUDENT_NOT_FOUND_WITH_ACCOUNT_ID));
     }
 
-    public StudentDTO getStudentProfileByAccountId() {
-        String authHeader = request.getHeader("Authorization");
-        if (jwtUtil.extractRoleFromHeader(authHeader).equals("STUDENT")) {
-            Student student = getStudentByAccountId(jwtUtil.extractAccountIdFromHeader(authHeader));
-            return studentMapper.toDTO(student);
-        }
-        throw new RuntimeException("Not allowed to access other profiles");
-    }
 
-    public Student createStudent(Student student) {
-        if (student.getStudentCode() == null || student.getStudentCode().isEmpty()) {
-            throw new RuntimeException("Student code cannot be null or empty");
+    public ApiResponse<Void> createStudent(StudentRequest studentRequest) {
+        if (studentRepository.existsByStudentCode(studentRequest.getStudentCode())) {
+            throw new AppException(ErrorCode.STUDENT_CODE_ALREADY_EXISTS);
         }
-        // Kiểm tra xem studentCode đã tồn tại chưa
-        if (studentRepository.existsByStudentCode(student.getStudentCode())) {
-            throw new RuntimeException("Student with studentCode " + student.getStudentCode() + " already exists");
+        if (studentRepository.existsByEmail(studentRequest.getEmail())) {
+            throw new AppException(ErrorCode.EMAIL_ALREADY_EXISTS);
+        }
+        if (studentRepository.existsByPhoneNumber(studentRequest.getPhoneNumber())) {
+            throw new AppException(ErrorCode.PHONE_ALREADY_EXISTS);
         }
 
-        String username = student.getStudentCode();
+        Student student = studentMapper.toEntity(studentRequest);
+
         AccountRequest accountRequest = new AccountRequest();
-        accountRequest.setUserName(username);
+        accountRequest.setUserName(student.getStudentCode());
         accountRequest.setPassword("123456");  // Default password
         accountRequest.setRole("STUDENT");     // Default role
 
         Account account = accountService.createAccount(accountRequest);
-
         student.setAccountId(account.getId());
-        return studentRepository.save(student);
+        studentRepository.save(student);
+
+        return ApiResponse.success("Student created successfully");
     }
 
-    public String updateStudent(Integer id, Student updatedStudent) {
-        Optional<Student> optionalStudent = studentRepository.findById(id);
-        if (optionalStudent.isEmpty()) {
-            return "Student not found!";
+
+
+    public ApiResponse<Void> updateStudent(Integer id, StudentRequest studentRequest) {
+        Student student = studentRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.STUDENT_NOT_FOUND));
+
+        if (studentRepository.existsByStudentCode(studentRequest.getStudentCode()) &&
+                !student.getStudentCode().equals(studentRequest.getStudentCode())) {
+            throw new AppException(ErrorCode.STUDENT_CODE_ALREADY_EXISTS);
+        }
+        if (studentRepository.existsByEmail(studentRequest.getEmail()) &&
+                !student.getEmail().equals(studentRequest.getEmail())) {
+            throw new AppException(ErrorCode.EMAIL_ALREADY_EXISTS);
+        }
+        if (studentRepository.existsByPhoneNumber(studentRequest.getPhoneNumber()) &&
+                !student.getPhoneNumber().equals(studentRequest.getPhoneNumber())) {
+            throw new AppException(ErrorCode.PHONE_ALREADY_EXISTS);
         }
 
-        Student student = optionalStudent.get();
-
-        // Check if the new studentCode is unique before updating
-        if (!updatedStudent.getStudentCode().equals(student.getStudentCode()) &&
-                studentRepository.existsByStudentCode(updatedStudent.getStudentCode())) {
-            throw new RuntimeException("Student with studentCode " + updatedStudent.getStudentCode() + " already exists");
-        }
-        student.setStudentCode(updatedStudent.getStudentCode());
-        student.setFullName(updatedStudent.getFullName());
-        student.setEmail(updatedStudent.getEmail());
-        student.setPhoneNumber(updatedStudent.getPhoneNumber());
-        student.setBirthday(updatedStudent.getBirthday());
-        student.setGender(updatedStudent.getGender());
-        student.setClassName(updatedStudent.getClassName());
-        student.setHometown(updatedStudent.getHometown());
+        student.setStudentCode(studentRequest.getStudentCode());
+        student.setFullName(studentRequest.getFullName());
+        student.setEmail(studentRequest.getEmail());
+        student.setPhoneNumber(studentRequest.getPhoneNumber());
+        student.setBirthday(studentRequest.getBirthday());
+        student.setGender(Student.Gender.valueOf(studentRequest.getGender()));
+        student.setClassName(studentRequest.getClassName());
+        student.setHometown(studentRequest.getHometown());
 
         String username = student.getStudentCode();
         AccountRequest accountRequest = new AccountRequest();
@@ -129,41 +124,44 @@ public class StudentService {
         accountService.updateAccount(accountRequest, student.getAccountId());
 
         studentRepository.save(student);
-        return "Updated student with id " + id;
+        return ApiResponse.success("Student updated successfully");
     }
 
-    public String updateProfile(UpdateProfileRequest updateProfileRequest) {
+    public ApiResponse<Void> updateProfile(UpdateProfileRequest updateProfileRequest) {
         String authHeader = request.getHeader("Authorization");
-        Optional<Student> optionalStudent = studentRepository.findByAccountId(jwtUtil.extractAccountIdFromHeader(authHeader));
-        if (optionalStudent.isEmpty()) {
-            return "Student not found!";
+        Integer accountId = jwtUtil.extractAccountIdFromHeader(authHeader);
+        accountService.validateAccountExists(accountId);
+        Student student = studentRepository.findByAccountId(accountId).orElseThrow(() -> new AppException(ErrorCode.STUDENT_NOT_FOUND_WITH_ACCOUNT_ID));
+
+        if (!updateProfileRequest.getEmail().equals(student.getEmail()) &&
+                studentRepository.existsByEmail(updateProfileRequest.getEmail())) {
+            throw new AppException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
 
-        Student student = optionalStudent.get();
+        if (!updateProfileRequest.getPhoneNumber().equals(student.getPhoneNumber()) &&
+                studentRepository.existsByPhoneNumber(updateProfileRequest.getPhoneNumber())) {
+            throw new AppException(ErrorCode.PHONE_ALREADY_EXISTS);
+        }
 
         student.setEmail(updateProfileRequest.getEmail());
         student.setPhoneNumber(updateProfileRequest.getPhoneNumber());
 
         studentRepository.save(student);
-        return "Updated profile";
+        return ApiResponse.success("Profile updated successfully");
     }
 
-    public String changePassword(ChangePasswordRequest changePasswordRequest) {
-        String authHeader = request.getHeader("Authorization");
-        return accountService.changePassword(jwtUtil.extractAccountIdFromHeader(authHeader), changePasswordRequest);
-    }
 
-    public void deleteStudent(Integer id) {
+    public ApiResponse<Void> deleteStudent(Integer id) {
         Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Student not found with id " + id));
+                .orElseThrow(() -> new AppException(ErrorCode.STUDENT_NOT_FOUND));
 
         // Delete associated account first
         if (student.getAccountId() != null) {
             accountService.deleteAccount(student.getAccountId());
         }
-
         // Delete the student
         studentRepository.deleteById(id);
+        return ApiResponse.success("Student deleted successfully");
     }
 
 

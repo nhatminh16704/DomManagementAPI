@@ -1,37 +1,23 @@
 package com.domhub.api.mapper;
 
+import com.domhub.api.dto.request.StudentRequest;
 import com.domhub.api.dto.response.StudentDTO;
 import com.domhub.api.model.Student;
-import com.domhub.api.repository.RoomRentalRepository;
-import com.domhub.api.service.ViolationService;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 
-@Component
-public class StudentMapper {
-    private final RoomRentalRepository roomRentalRepository;
-    private final RoomRentalMapper roomRentalMapper;
-    private final ViolationService violationService;
+@Mapper(componentModel = "spring")
+public interface StudentMapper {
 
-    public StudentMapper(RoomRentalRepository roomRentalRepository, RoomRentalMapper roomRentalMapper, ViolationService violationService) {
-        this.roomRentalRepository = roomRentalRepository;
-        this.roomRentalMapper = roomRentalMapper;
-        this.violationService = violationService;
-    }
+    @Mapping(target = "roomRentals", ignore = true )
+    @Mapping(target = "violations", ignore = true )
+    @Mapping(target = "gender", expression = "java(student.getGender().name())")
+    StudentDTO toDTO(Student student);
 
-    public StudentDTO toDTO(Student student) {
-        StudentDTO studentDTO = new StudentDTO();
-        studentDTO.setStudentCode(student.getStudentCode());
-        studentDTO.setFullName(student.getFullName());
-        studentDTO.setBirthday(student.getBirthday());
-        studentDTO.setGender(student.getGender().toString());
-        studentDTO.setHometown(student.getHometown());
-        studentDTO.setPhoneNumber(student.getPhoneNumber());
-        studentDTO.setEmail(student.getEmail());
-        studentDTO.setClassName(student.getClassName());
-        studentDTO.setRoomRentals(roomRentalMapper.toDTOList(roomRentalRepository.findByStudentId(student.getId())));
-        studentDTO.setViolations(violationService.getAllViolationsByStudentId(student.getId()));
-        return studentDTO;
-    }
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "accountId", ignore = true)
+    @Mapping(target = "gender", expression = "java(Student.Gender.valueOf(studentRequest.getGender()))")
+    Student toEntity(StudentRequest studentRequest);
 
 }

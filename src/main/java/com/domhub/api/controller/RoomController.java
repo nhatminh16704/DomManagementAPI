@@ -21,13 +21,13 @@ public class RoomController {
         this.roomService = roomService;
     }
 
-    @GetMapping("/get-all")
+    @GetMapping
     public ApiResponse<List<RoomDTO>> findAll() {
         return roomService.getAllRooms();
     }
 
     @GetMapping("/{id}")
-    public ApiResponse<RoomDetailDTO> getRoomDetail(@PathVariable("id") Integer id) {
+    public ApiResponse<RoomDetailDTO> getRoomDetail(@PathVariable Integer id) {
         return roomService.getRoomDetail(id);
     }
 

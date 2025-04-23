@@ -68,7 +68,7 @@ public class RoomService {
         }
 
         // Kiểm tra phòng có còn trống không
-        Room room = roomRepository.findById(rental.getRoomId())
+        Room room = roomRepository.findById(rental.getRoom().getId())
                 .orElseThrow(() -> new RuntimeException("Room not found"));
 
         if (room.getAvailable() <= 0) {
@@ -86,7 +86,7 @@ public class RoomService {
     public void cancelRoomRental(Integer rentalId) {
         RoomRental rental = roomRentalRepository.findById(rentalId).orElse(null);
         if (rental != null) {
-            Room room = roomRepository.findById(rental.getRoomId()).orElse(null);
+            Room room = roomRepository.findById(rental.getRoom().getId()).orElse(null);
             // Tăng số lượng phòng trống lên vì đơn thuê bị hủy
             if (room != null) {
                 room.setAvailable(room.getAvailable() + 1);
@@ -106,7 +106,7 @@ public class RoomService {
 
     public Room getRoomById(Integer roomId) {
         return roomRepository.findById(roomId)
-                .orElseThrow(() -> new RuntimeException("Room not found with id: " + roomId));
+                .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
     }
 
 

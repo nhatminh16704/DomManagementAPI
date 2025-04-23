@@ -16,7 +16,7 @@ public interface RoomRentalRepository extends JpaRepository<RoomRental, Integer>
 
     @Query("SELECT s FROM Student s " +
             "JOIN RoomRental r ON r.studentId = s.id " +
-            "WHERE r.roomId = :roomId AND r.status = 'ACTIVE'")
+            "WHERE r.room.id = :roomId AND r.status = 'ACTIVE'")
     List<Student> findStudentsByRoomId(@Param("roomId") Integer roomId);
 
     @Query("SELECT SUM(r.price) FROM RoomRental r")
@@ -26,6 +26,6 @@ public interface RoomRentalRepository extends JpaRepository<RoomRental, Integer>
 
     @Query("SELECT s.accountId FROM Student s " +
        "JOIN RoomRental r ON r.studentId = s.id " +
-       "WHERE r.roomId = :roomId AND r.status = 'ACTIVE'")
+       "WHERE r.room.id = :roomId AND r.status = 'ACTIVE'")
     List<Integer> findAccountIdsByRoomId(Integer roomId);
 }

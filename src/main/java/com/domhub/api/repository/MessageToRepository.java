@@ -16,7 +16,7 @@ import java.util.Optional;
 public interface MessageToRepository extends JpaRepository<MessageTo, MessageToId> {
 
     @Query("SELECT new com.domhub.api.dto.response.MessageDTO(" +
-            "m.id, m.title, m.preview, CONCAT(CONCAT(s.firstName,' '),s.lastName), m.date, mt.isRead) " +
+            "m.id, m.title, m.preview, s.fullName, m.date, mt.isRead) " +
             "FROM MessageTo mt " +
             "JOIN Message m ON mt.id.messageId = m.id " +
             "JOIN Staff s ON m.sentBy = s.accountId " +

@@ -41,8 +41,10 @@ public class GlobalExceptionHandler {
                 .stream()
                 .collect(Collectors.toMap(
                         FieldError::getField,
-                        error -> Optional.ofNullable(error.getDefaultMessage()).orElse("Invalid value")
-                ));
+                        error -> Optional.ofNullable(error.getDefaultMessage()).orElse("Invalid value"),
+                        (msg1, msg2) -> msg1 // merge: nếu trùng key thì lấy msg1
+                ))
+;
 
         return ResponseEntity.badRequest().body(ApiResponse.error(ErrorCode.INVALID_REQUEST, errors));
     }

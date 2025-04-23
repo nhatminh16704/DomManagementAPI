@@ -7,6 +7,7 @@ import com.domhub.api.dto.request.LoginRequest;
 import com.domhub.api.dto.response.ApiResponse;
 import com.domhub.api.exception.AppException;
 import com.domhub.api.exception.ErrorCode;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,7 @@ public class AccountService {
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final JwtUtil jwtUtil;
+    private final HttpServletRequest request;
 
     public boolean existsById(Integer id) {
         return accountRepository.existsById(id);
@@ -42,25 +44,31 @@ public class AccountService {
         }
     }
 
+    public void validateAccountExists(Integer accountId) {
+        if (!accountRepository.existsById(accountId)) {
+            throw new AppException(ErrorCode.ACCOUNT_NOT_FOUND, "Account not found with id " + accountId);
+        }
+    }
+
     public Account findById(Integer id) {
         return accountRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND, "Account not found with id " + id));
     }
 
 
-
-
     public Account createAccount(AccountRequest request) {
-        String encodedPassword = passwordEncoder.encode(request.getPassword());
 
+        if (accountRepository.existsByUserName(request.getUserName())) {
+            throw new AppException(ErrorCode.USERNAME_ALREADY_EXISTS);
+        }
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
         Account account = new Account();
         account.setUserName(request.getUserName());
         account.setPassword(encodedPassword);
-
-        Role role = roleRepository.findByRoleName(request.getRole());
+        Role role = roleRepository.findByRoleName(request.getRole()).orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
         account.setRole(role);
-
         return accountRepository.save(account);
+
     }
 
     public void updateAccount(AccountRequest request, Integer id) {
@@ -69,25 +77,33 @@ public class AccountService {
             Account account = accountOptional.get();
             account.setUserName(request.getUserName());
 //            account.setPassword(passwordEncoder.encode(request.getPassword()));
-            Role role = roleRepository.findByRoleName(request.getRole());
+            Role role = roleRepository.findByRoleName(request.getRole()).orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
             account.setRole(role);
             accountRepository.save(account);
         }
     }
 
-    public String changePassword(Integer id, ChangePasswordRequest changePasswordRequest) {
+    public void updateUserName(Integer id, String userName) {
         Optional<Account> accountOptional = accountRepository.findById(id);
         if (accountOptional.isPresent()) {
             Account account = accountOptional.get();
-            if (passwordEncoder.matches(changePasswordRequest.getCurrentPassword(), account.getPassword())) {
-                String encodedPassword = passwordEncoder.encode(changePasswordRequest.getNewPassword());
-                account.setPassword(encodedPassword);
-                accountRepository.save(account);
-                return "changed password";
-            }
-            throw new RuntimeException("password does not match");
+            account.setUserName(userName);
+            accountRepository.save(account);
+        } else {
+            throw new AppException(ErrorCode.ACCOUNT_NOT_FOUND);
         }
-        throw new RuntimeException("account does not exist");
+    }
+
+    public ApiResponse<Void> changePassword(ChangePasswordRequest changePasswordRequest) {
+        Integer id = jwtUtil.extractAccountIdFromHeader(request.getHeader("Authorization"));
+        Account account = accountRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_NOT_FOUND));
+        if (passwordEncoder.matches(changePasswordRequest.getCurrentPassword(), account.getPassword())) {
+            String encodedPassword = passwordEncoder.encode(changePasswordRequest.getNewPassword());
+            account.setPassword(encodedPassword);
+            accountRepository.save(account);
+            return ApiResponse.success("Password changed successfully");
+        }
+        throw new AppException(ErrorCode.PASSWORD_NOT_MATCH);
     }
 
     public ApiResponse<String> login(LoginRequest request) {
@@ -111,7 +127,7 @@ public class AccountService {
 
     public void deleteAccount(Integer id) {
         Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Account not found with id " + id));
+                .orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_NOT_FOUND));
         accountRepository.deleteById(id);
     }
 }

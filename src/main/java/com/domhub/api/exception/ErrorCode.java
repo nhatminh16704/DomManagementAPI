@@ -19,6 +19,8 @@ public enum ErrorCode {
     FORBIDDEN(3002, "Forbidden"),
     USER_NOT_FOUND(3003, "User not found"),
     WRONG_PASSWORD(3004, "Wrong password"),
+    ACCOUNT_NOT_FOUND(3005, "Account not found"),
+    PASSWORD_NOT_MATCH(3006, "Password not match"),
 
 
 
@@ -33,6 +35,17 @@ public enum ErrorCode {
     BILLING_NOT_FOUND(4007, "Billing not found"),
     INVALID_ELECTRICITY_END(4008, "Invalid electric end"),
     STUDENT_NOT_REGISTERED_ROOM(4009, "Student not registered in room"),
+    STUDENT_NOT_FOUND_WITH_ACCOUNT_ID(4010, "Student not found with account ID"),
+    CANT_REGISTER_ROOM(4011, "Can't register room"),
+    NOT_IN_REGISTRATION_PERIOD(4012, "Not in registration period"),
+    STAFF_NOT_FOUND(4013, "Staff not found"),
+    EMAIL_ALREADY_EXISTS(4014, "Email already exists"),
+    PHONE_ALREADY_EXISTS(4015, "Phone number already exists"),
+    USERNAME_ALREADY_EXISTS(4016, "Username already exists"),
+    ROLE_NOT_FOUND(4017, "Role not found"),
+    STUDENT_NOT_FOUND(4018, "Student not found"),
+    STUDENT_CODE_ALREADY_EXISTS(4019, "Student code already exists"),
+
 
 
     // Server errors (5000-5999)

@@ -10,8 +10,12 @@ import java.util.Optional;
 public interface StudentRepository extends JpaRepository<Student, Integer> {
     Optional<Student> findByAccountId(Integer accountId);
     boolean existsByStudentCode(String studentCode);
+    boolean existsByEmail(String email);
+    boolean existsByPhoneNumber(String phoneNumber);
 
     @Query("SELECT s.id FROM Student s WHERE s.accountId = :accountId")
     Optional<Integer> findStudentIdByAccountId(@Param("accountId") Integer accountId);
+
+
 
 }

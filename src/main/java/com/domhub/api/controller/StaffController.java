@@ -1,10 +1,15 @@
 package com.domhub.api.controller;
 
 import com.domhub.api.dto.request.ChangePasswordRequest;
+import com.domhub.api.dto.request.StaffRequest;
 import com.domhub.api.dto.request.UpdateProfileRequest;
+import com.domhub.api.dto.response.ApiResponse;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import com.domhub.api.model.Staff;
 import com.domhub.api.service.StaffService;
@@ -13,80 +18,54 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
 @RequestMapping("/staffs")
 @RequiredArgsConstructor
+@Validated
 public class StaffController {
 
     private final StaffService staffService;
 
-    @GetMapping("/findAll")
-    public ResponseEntity<List<Staff>> getAllStaff() {
-        System.out.println("Calling getAllStaff");
-        List<Staff> staffList = staffService.getAllStaff();
-        return ResponseEntity.ok(staffList);
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping
+    public ApiResponse<List<Staff>> getAllStaff() {
+        return staffService.getAllStaff();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
-    public ResponseEntity<Staff> getStaffById(@PathVariable Integer id) {
-        Optional<Staff> staff = staffService.getStaffById(id);
-        return staff.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ApiResponse<Staff> getStaffById(@PathVariable @Min(1) Integer id) {
+        return staffService.getStaffById(id);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     @GetMapping("/profile")
-    public ResponseEntity<Staff> getStaffProfileByAccountId() {
-        Staff staff = staffService.getStaffProfileByAccountId();
-        return ResponseEntity.ok(staff);
+    public ApiResponse<Staff> getStaffProfileByAccountId() {
+        return staffService.getStaffProfileByAccountId();
     }
 
     @PutMapping("/profile")
-    public ResponseEntity<?> updateStaffProfile(@RequestBody UpdateProfileRequest updateProfileRequest) {
-        try {
-            String result = staffService.updateProfile(updateProfileRequest);
-            return ResponseEntity.ok(result);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ApiResponse<Void> updateStaffProfile(@RequestBody @Valid UpdateProfileRequest updateProfileRequest) {
+        return staffService.updateProfile(updateProfileRequest);
     }
 
-    @PutMapping("/password")
-    public ResponseEntity<?> updateStaffPasswordByAccountId(@RequestBody ChangePasswordRequest changePasswordRequest) {
-        try {
-            String result = staffService.changePassword(changePasswordRequest);
-            return ResponseEntity.ok(result);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
 
-    @PostMapping("/create")
+    @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Staff> createStaff(@RequestBody Staff staff) {
-        Staff newStaff = staffService.createStaff(staff);
-        return ResponseEntity.ok(newStaff);
+    public ApiResponse<Void> createStaff(@RequestBody @Valid StaffRequest staff) {
+        return staffService.createStaff(staff);
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> updateStaff(@PathVariable Integer id, @RequestBody Staff staff) {
-        try {
-            String result = staffService.updateStaff(id, staff);
-            return ResponseEntity.ok(result);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ApiResponse<Void> updateStaff(@PathVariable @Min(1) Integer id, @RequestBody @Valid StaffRequest staffRequest) {
+        return staffService.updateStaff(id, staffRequest);
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> deleteStaff(@PathVariable Integer id) {
-        try {
-            staffService.deleteStaffById(id);
-            return ResponseEntity.ok("Deleted staff with id " + id);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ApiResponse<Void> deleteStaff(@PathVariable @Min(1) Integer id) {
+        return staffService.deleteStaffById(id);
+
     }
 }
 

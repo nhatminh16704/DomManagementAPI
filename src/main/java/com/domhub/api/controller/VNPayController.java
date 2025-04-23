@@ -107,7 +107,7 @@ public class VNPayController {
                 roomService.cancelRoomRental(rentId);
             }
             redirectUrl = String.format("http://localhost:3000/rooms/%d?status=%s",
-            rental.getRoomId(), status);
+            rental.getRoom().getId(), status);
             return ResponseEntity.status(302).header("Location", redirectUrl).build();
         }
 

@@ -1,5 +1,7 @@
 package com.domhub.api.controller;
 
+import com.domhub.api.dto.response.ApiResponse;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,19 +32,14 @@ public class RegistrationPeriodController {
     private final RegistrationPeriodService registrationPeriodService;
 
     @GetMapping
-    public List<RegistrationPeriodDTO> getMethodName() {
+    public ApiResponse<List<RegistrationPeriodDTO>> getMethodName() {
         return registrationPeriodService.getAll();
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> createRegistrantion(@RequestBody RegistrationPeriodRequest request) {
-        try {
-            String id = registrationPeriodService.create(request);
-            return ResponseEntity.ok("Created successfully with ID: " + id);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Creation failed: " + e.getMessage());
-        }
+    public ApiResponse<Void> createRegistration(@RequestBody @Valid RegistrationPeriodRequest request) {
+            return registrationPeriodService.create(request);
     }
 
     

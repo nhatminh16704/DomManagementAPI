@@ -20,8 +20,9 @@ public class RoomRental {
     @Column(nullable = false)
     private Integer studentId;
 
-    @Column(nullable = false)
-    private Integer roomId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "room_id", nullable = false)
+    private Room room;
 
     @Temporal(TemporalType.DATE)
     private LocalDate startDate;

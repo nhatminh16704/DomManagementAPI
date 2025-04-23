@@ -33,13 +33,13 @@ public class MessageController {
         return messageService.createMessage(messageRequest);
     }
 
-    @GetMapping("/users/search")
+    @GetMapping("/users")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<List<UserSearchDTO>> searchUsers(@RequestParam @NotBlank String keyword) {
         return messageService.searchUsers(keyword);
     }
 
-    @GetMapping("/search/room")
+    @GetMapping("/room")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<List<SearchRoomDTO>> searchRoom(@RequestParam @NotBlank String keyword) {
         return messageService.searchRoom(keyword);
@@ -57,22 +57,22 @@ public class MessageController {
         return messageService.getMessageById(id);
     }
 
-    @PatchMapping("/{messageId}/read")
+    @PatchMapping("/{messageId}/mark-read")
     public ApiResponse<Void> markMessageAsRead(@PathVariable @Min(1) Integer messageId,
                                                @RequestBody @Valid MarkReadRequest request) {
         return messageService.markMessageAsRead(messageId, request.getAccountId());
     }
 
 
-    @GetMapping("/sent/{accountId}")
+    @GetMapping("/sent")
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<List<MessageDTO>> getMessagesSentByAccountId(@PathVariable @Min(1) Integer accountId) {
-            return messageService.getMessagesSentByAccountId(accountId);
+    public ApiResponse<List<MessageDTO>> getMessagesSentByAccountId() {
+            return messageService.getMessagesSentByAccountId();
     }
 
-    @GetMapping("/unread/{accountId}")
-    public ApiResponse<Integer> countUnreadMessagesByAccountId(@PathVariable @Min(1) Integer accountId) {
-        return messageService.countUnreadMessagesByAccountId(accountId);
+    @GetMapping("/unread")
+    public ApiResponse<Integer> countUnreadMessagesByAccountId() {
+        return messageService.countUnreadMessagesByAccountId();
 
     }
 }

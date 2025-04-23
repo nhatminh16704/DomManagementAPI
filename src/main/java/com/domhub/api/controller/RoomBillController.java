@@ -9,12 +9,9 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import jakarta.servlet.http.HttpServletRequest;
+
 
 import java.time.LocalDate;
 import java.util.List;
@@ -43,16 +40,6 @@ public class RoomBillController {
         return roomBillService.getAll();
     }
 
-
-
-    @GetMapping("/{roomId}")
-    public RoomBill getByRoomAndMonth(
-            @PathVariable Integer roomId,
-            @RequestParam("month") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate month
-    ) {
-        return roomBillService.getByRoomIdAndMonth(roomId, month)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy bill."));
-    }
 
 
     @PreAuthorize("hasRole('ADMIN')")

@@ -20,13 +20,12 @@ public class Staff {
     private Integer accountId;
 
     @Column(nullable = false)
-    private String firstName;
+    private String fullName;
 
-    @Column(nullable = false)
-    private String lastName;
 
     @Column(nullable = false)
     private LocalDate birthday;
+
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -50,4 +49,3 @@ public class Staff {
         Nam, Nữ
     }
 }
-

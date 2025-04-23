@@ -1,38 +1,32 @@
 package com.domhub.api.mapper;
 
+
+import com.domhub.api.dto.request.RoomRentalRequest;
+import com.domhub.api.dto.response.RoomDTO;
 import com.domhub.api.dto.response.RoomRentalDTO;
 import com.domhub.api.model.Room;
 import com.domhub.api.model.RoomRental;
-import com.domhub.api.repository.RoomRepository;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
-@Component
-public class RoomRentalMapper {
-    private final RoomRepository roomRepository;
 
-    public RoomRentalMapper(RoomRepository roomRepository) {
-        this.roomRepository = roomRepository;
-    }
+@Mapper(componentModel = "spring")
+public interface RoomRentalMapper {
 
-    public RoomRentalDTO toDTO(RoomRental roomRental) {
-        RoomRentalDTO roomRentalDTO = new RoomRentalDTO();
-        roomRentalDTO.setId(roomRental.getId());
-        roomRentalDTO.setStatus(roomRental.getStatus().toString());
-        roomRentalDTO.setStartDate(roomRental.getStartDate());
-        roomRentalDTO.setEndDate(roomRental.getEndDate());
+    @Mapping(target = "startDate", ignore = true)
+    @Mapping(target = "endDate", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "studentId", ignore = true)
+    @Mapping(target = "status", expression = "java(RoomRental.Status.UNPAID)")
+    RoomRental toEntity(RoomRentalRequest roomRentalRequest);
 
-        Room room = roomRepository.findById(roomRental.getRoomId()).orElseThrow(() -> new RuntimeException("Room not found"));
-        roomRentalDTO.setRoomName(room.getRoomName());
-        roomRentalDTO.setRoomType(room.getTypeRoom().getName());
-        roomRentalDTO.setPrice(roomRental.getPrice());
+    @Mapping(target = "status", expression = "java(roomRental.getStatus().name())")
+    @Mapping(target = "roomName", source = "roomRental.room.roomName")
+    @Mapping(target = "roomType", source = "roomRental.room.typeRoom.name")
+    RoomRentalDTO toDTO(RoomRental roomRental);
 
-        return roomRentalDTO;
-    }
+    List<RoomRentalDTO> toDTOs(List<RoomRental> roomRentals);
 
-    public List<RoomRentalDTO> toDTOList(List<RoomRental> roomRentals) {
-        return roomRentals.stream().map(this::toDTO).collect(Collectors.toList());
-    }
 }

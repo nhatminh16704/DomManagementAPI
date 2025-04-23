@@ -15,6 +15,8 @@ import com.domhub.api.repository.MessageToRepository;
 import com.domhub.api.repository.RoomRentalRepository;
 import com.domhub.api.repository.RoomRepository;
 
+import com.domhub.api.security.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +34,8 @@ public class MessageService {
     private final MessageToRepository messageToRepository;
     private final RoomRepository roomRepository;
     private final RoomRentalRepository roomrentalRepository;
+    private final HttpServletRequest httpServletRequest;
+    private final JwtUtil jwtUtil;
 
     public ApiResponse<List<UserSearchDTO>> searchUsers(String keyword) {
         return ApiResponse.success(accountRepository.findByUserNameStartingWith(keyword)
@@ -112,12 +116,17 @@ public class MessageService {
         return ApiResponse.success("Message marked as read successfully");
     }
 
-    public ApiResponse<Integer> countUnreadMessagesByAccountId(Integer accountId) {
+    public ApiResponse<Integer> countUnreadMessagesByAccountId() {
+        String token = httpServletRequest.getHeader("Authorization");
+        Integer accountId = jwtUtil.extractAccountIdFromHeader(token);
         accountService.validateAccountExists(accountId, "Account not found");
         return ApiResponse.success(messageToRepository.countUnreadMessagesByAccountId(accountId));
     }
 
-    public ApiResponse<List<MessageDTO>> getMessagesSentByAccountId(Integer accountId) {
+    public ApiResponse<List<MessageDTO>> getMessagesSentByAccountId() {
+
+        String token = httpServletRequest.getHeader("Authorization");
+        Integer accountId = jwtUtil.extractAccountIdFromHeader(token);
         accountService.validateAccountExists(accountId, "Account not found");
         return ApiResponse.success(messageRepository.findMessagesForAdmin(accountId));
 

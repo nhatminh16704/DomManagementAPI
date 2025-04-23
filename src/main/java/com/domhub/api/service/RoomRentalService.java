@@ -1,12 +1,18 @@
 package com.domhub.api.service;
 
+import com.domhub.api.dto.response.ApiResponse;
 import com.domhub.api.dto.response.RoomRentalDTO;
 import com.domhub.api.exception.AppException;
 import com.domhub.api.exception.ErrorCode;
+import com.domhub.api.mapper.RoomRentalMapper;
+import com.domhub.api.model.Account;
+import com.domhub.api.model.Room;
 import com.domhub.api.model.RoomRental;
 import com.domhub.api.model.Student;
 import com.domhub.api.repository.RegistrationPeriodRepository;
 import com.domhub.api.repository.RoomRentalRepository;
+import com.domhub.api.security.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.domhub.api.dto.request.RoomRentalRequest;
@@ -22,6 +28,9 @@ public class RoomRentalService {
     private final StudentService studentService;
     private final RoomRentalRepository roomRentalRepository;
     private final RegistrationPeriodRepository registrationPeriodRepository;
+    private final HttpServletRequest httpServletRequest;
+    private final JwtUtil jwtUtil;
+    private final RoomRentalMapper roomRentalMapper;
 
 
     public boolean canRentRoom(Integer studentId) {
@@ -40,67 +49,54 @@ public class RoomRentalService {
     }
 
 
-    public Integer registerRoomRental(RoomRentalRequest request) {
-        Integer studentId = studentService.getStudentByAccountId(request.getAccountId()).getId();
-        String gender = String.valueOf(studentService.getStudentByAccountId(request.getAccountId()).getGender());
-        String blocktype = String.valueOf(roomService.getRoomById(request.getRoomId()).getBlock().getType());
-        if(!gender.equals(blocktype)){
-            throw new RuntimeException("Không thể đăng ký phòng khác giới");
+    public ApiResponse<RoomRental> registerRoomRental(RoomRentalRequest request) {
+        String token = httpServletRequest.getHeader("Authorization");
+        Integer accountId = jwtUtil.extractAccountIdFromHeader(token);
+
+        Student student = studentService.getStudentByAccountId(accountId);
+        Room room = roomService.getRoomById(request.getRoomId());
+
+        if (!student.getGender().name().equals(room.getBlock().getType().name())) {
+            throw new AppException(ErrorCode.CANT_REGISTER_ROOM, "Can't register room in this block");
         }
 
-        if(!registrationPeriodRepository.existsByIsActiveTrue()){
-            throw new RuntimeException("Ngoài thời gian đăng ký");
+        if (!registrationPeriodRepository.existsByIsActiveTrue()) {
+            throw new AppException(ErrorCode.NOT_IN_REGISTRATION_PERIOD);
         }
 
-        if (!canRentRoom(studentId)) {
-            throw new RuntimeException("You can't rent more rooms");
+        if (!canRentRoom(student.getId())) {
+            throw new AppException(ErrorCode.CANT_REGISTER_ROOM, "Student already has an active or pending rental");
         }
 
 
-        RoomRental rental = new RoomRental();
-        rental.setRoomId(request.getRoomId());
-        rental.setStudentId(studentId);
-        rental.setStatus(RoomRental.Status.UNPAID);
+        RoomRental rental = roomRentalMapper.toEntity(request);
+        rental.setStudentId(student.getId());
         LocalDate today = LocalDate.now();
         int currentYear = LocalDate.now().getYear();
-        if(today.getMonthValue()<6){
+        if (today.getMonthValue() < 6) {
             rental.setStartDate(LocalDate.of(currentYear, 1, 1));
             rental.setEndDate(LocalDate.of(currentYear, 6, 1));
-        }else{
+        } else {
             rental.setStartDate(LocalDate.of(currentYear, 6, 1));
             rental.setEndDate(LocalDate.of(currentYear, 12, 1));
         }
-        rental.setPrice(request.getPrice());
 
-        roomRentalRepository.save(rental);
-
-        return rental.getId();
+        return ApiResponse.success(roomRentalRepository.save(rental));
     }
 
-    public List<RoomRentalDTO> getAllRoomRentalsByStudentId(Integer studentId) {
+    public ApiResponse<List<RoomRentalDTO>> getAllRoomRentalsByStudentId(Integer studentId) {
+
         List<RoomRental> rentals = roomRentalRepository.findByStudentId(studentId);
-        return rentals.stream()
-                .map(rental -> {
-                    var room = roomService.getRoomById(rental.getRoomId());
-                    return new RoomRentalDTO(
-                            rental.getId(),
-                            rental.getStartDate(),
-                            rental.getEndDate(),
-                            rental.getPrice(),
-                            rental.getStatus().toString(),
-                            room.getRoomName(),
-                            room.getTypeRoom().getName()
-                    );
-                })
-                .toList();
+        List<RoomRentalDTO> rentalDTOS = roomRentalMapper.toDTOs(rentals);
+        return ApiResponse.success(rentalDTOS);
+
     }
 
     public Integer getCurrentRoomByStudentId(Integer studentId) {
         return roomRentalRepository.findByStudentIdAndStatus(studentId, RoomRental.Status.ACTIVE)
-                .map(RoomRental::getRoomId)
+                .map(rr -> rr.getRoom().getId())
                 .orElseThrow(() -> new AppException(ErrorCode.STUDENT_NOT_REGISTERED_ROOM));
     }
-
 
 
 }

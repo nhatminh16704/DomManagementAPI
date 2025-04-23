@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface MessageRepository extends JpaRepository<Message, Integer> {
     @Query("SELECT new com.domhub.api.dto.response.MessageDTO(" +
-            "m.id, m.title, m.preview, CONCAT(CONCAT(s.firstName,' '),s.lastName), m.date, true) " +
+            "m.id, m.title, m.preview, s.fullName, m.date, true) " +
             "FROM Message m " +
             "JOIN Staff s ON m.sentBy = s.accountId ")
     List<MessageDTO> findMessagesForAdmin(@Param("accountId") Integer accountId);
