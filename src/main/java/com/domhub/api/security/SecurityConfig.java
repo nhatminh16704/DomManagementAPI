@@ -37,7 +37,7 @@ public class SecurityConfig {
                 .securityMatcher("/**") // Áp dụng cho tất cả các request
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/**").permitAll() // Cho phép login/signup
-                        .requestMatchers("/vnpay/return/**").permitAll() // Cho phép login/signup
+                        .requestMatchers("/vnpay/return/**").permitAll()
                         .anyRequest().authenticated() // Các request khác cần xác thực (JWT sau)
                 )
                 .csrf(csrf -> csrf.disable()) // Tắt CSRF cho API REST

@@ -24,9 +24,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RoomService {
     private final RoomRepository roomRepository;
-    private final RoomRentalRepository roomRentalRepository;
     private final RoomMapper roomMapper;
     private final DeviceRoomRepository deviceRoomRepository;
+    private final StudentService studentService;
+    private final RoomRentalService roomRentalService;
 
 
     public long count() {
@@ -52,49 +53,53 @@ public class RoomService {
     }
 
     public void reserveRoom(Integer rentalId) {
-        // Tìm đơn thuê phòng
-        RoomRental rental = roomRentalRepository.findById(rentalId)
-                .orElseThrow(() -> new RuntimeException("Room rental not found"));
 
-        // Kiểm tra đơn thuê phòng có ở trạng thái PENDING không
+        RoomRental rental = roomRentalService.getRoomRentalById(rentalId);
+
         if (rental.getStatus().equals(RoomRental.Status.PENDING)) {
-            throw new RuntimeException("Room rental is in PENDING state.");
+            throw new AppException(ErrorCode.ROOM_RENTAL_NOT_VALID_SATUS, "Room rental is in PENDING state.");
         }
         if (rental.getStatus().equals(RoomRental.Status.ACTIVE)) {
-            throw new RuntimeException("Room rental is in ACTIVE state.");
+            throw new AppException(ErrorCode.ROOM_RENTAL_NOT_VALID_SATUS, "Room rental is in ACTIVE state.");
         }
         if (rental.getStatus().equals(RoomRental.Status.EXPIRED)) {
-            throw new RuntimeException("Room rental is in EXPIRED state.");
+            throw new AppException(ErrorCode.ROOM_RENTAL_NOT_VALID_SATUS, "Room rental is in EXPIRED state.");
         }
 
-        // Kiểm tra phòng có còn trống không
         Room room = roomRepository.findById(rental.getRoom().getId())
-                .orElseThrow(() -> new RuntimeException("Room not found"));
+                .orElseThrow(() -> {
+                    cancelRoomRental(rentalId);
+                    return new AppException(ErrorCode.ROOM_NOT_FOUND);
+                });
+
+        if (!studentService.existsById(rental.getStudentId())) {
+            cancelRoomRental(rentalId);
+            throw new AppException(ErrorCode.STUDENT_NOT_FOUND);
+        }
+
 
         if (room.getAvailable() <= 0) {
-            throw new RuntimeException("No available rooms left.");
+            cancelRoomRental(rentalId);
+            throw new AppException(ErrorCode.ROOM_FULL);
         }
 
         rental.setStatus(RoomRental.Status.PENDING);
-        roomRentalRepository.save(rental);
+        roomRentalService.update(rental);
 
-        // Cập nhật số lượng phòng trống
+
         room.setAvailable(room.getAvailable() - 1);
         roomRepository.save(room);
     }
 
     public void cancelRoomRental(Integer rentalId) {
-        RoomRental rental = roomRentalRepository.findById(rentalId).orElse(null);
-        if (rental != null) {
-            Room room = roomRepository.findById(rental.getRoom().getId()).orElse(null);
-            // Tăng số lượng phòng trống lên vì đơn thuê bị hủy
-            if (room != null) {
-                room.setAvailable(room.getAvailable() + 1);
-                roomRepository.save(room);
-            }
-            // Xóa RoomRental khỏi database
-            roomRentalRepository.deleteById(rentalId);
-        }
+        RoomRental rental = roomRentalService.getRoomRentalById(rentalId);
+        Room room = getRoomById(rental.getRoom().getId());
+
+        room.setAvailable(room.getAvailable() + 1);
+        roomRepository.save(room);
+
+        roomRentalService.deleteById(rentalId);
+
 
     }
 
@@ -114,7 +119,7 @@ public class RoomService {
         RoomDetailDTO roomDetailDTO = new RoomDetailDTO();
         roomDetailDTO.setRoom(roomMapper.toDTO(room));
         List<DeviceRoomDTO> deviceDTOs = deviceRoomRepository.findDevicesByRoomId(room.getId());
-        List<Student> students = roomRentalRepository.findStudentsByRoomId(room.getId());
+        List<Student> students = roomRentalService.getStudentsByRoomId(room.getId());
         roomDetailDTO.setStudents(students);
         roomDetailDTO.setDevices(deviceDTOs);
         return roomDetailDTO;

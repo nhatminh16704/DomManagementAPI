@@ -3,6 +3,7 @@ package com.domhub.api.service;
 
 import com.domhub.api.dto.request.DeviceRoomRequest;
 import com.domhub.api.dto.response.ApiResponse;
+import com.domhub.api.dto.response.DeviceRoomDTO;
 import com.domhub.api.exception.AppException;
 import com.domhub.api.exception.ErrorCode;
 import com.domhub.api.model.DeviceRoom;
@@ -11,6 +12,8 @@ import com.domhub.api.repository.DeviceRepository;
 import com.domhub.api.repository.DeviceRoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 
 @Service
@@ -29,6 +32,10 @@ public class DeviceRoomService {
         deviceRoom.setQuantity(deviceRoomRequest.getNewQuantity());
         deviceRoomRepository.save(deviceRoom);
         return ApiResponse.success(null);
+    }
+
+    public List<DeviceRoomDTO> getDevicesByRoomId(Integer id) {
+        return deviceRoomRepository.findDevicesByRoomId(id);
     }
 
     public ApiResponse<Void> deleteDeviceFromRoom(Integer roomId, Long deviceId) {

@@ -20,14 +20,14 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/room_rental")
+@RequestMapping("/room-rental")
 public class RoomRentalController {
     private final RoomRentalService roomRentalService;
 
 
     @PostMapping("/register")
     @PreAuthorize("hasRole('STUDENT')")
-    public ApiResponse<RoomRental> createRoomRental(@RequestBody @Valid RoomRentalRequest request) {
+    public ApiResponse<Integer> createRoomRental(@RequestBody @Valid RoomRentalRequest request) {
             return roomRentalService.registerRoomRental(request);
     }
 

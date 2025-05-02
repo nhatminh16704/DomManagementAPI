@@ -15,12 +15,6 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface RoomRentalMapper {
 
-    @Mapping(target = "startDate", ignore = true)
-    @Mapping(target = "endDate", ignore = true)
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "studentId", ignore = true)
-    @Mapping(target = "status", expression = "java(RoomRental.Status.UNPAID)")
-    RoomRental toEntity(RoomRentalRequest roomRentalRequest);
 
     @Mapping(target = "status", expression = "java(roomRental.getStatus().name())")
     @Mapping(target = "roomName", source = "roomRental.room.roomName")

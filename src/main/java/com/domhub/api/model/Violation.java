@@ -21,7 +21,7 @@ public class Violation {
     private Integer studentId;
 
     @Column(nullable = false)
-    private Integer staffId;
+    private Integer reportedBy;
 
     @Column(nullable = false)
     private String violationType;

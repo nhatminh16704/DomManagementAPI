@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -19,16 +20,11 @@ public class JwtUtil {
     // Thời gian token có hiệu lực (1 giờ)
     private static final long JWT_TOKEN_VALIDITY = 100L * 365 * 24 * 60 * 60 * 1000; // 100 năm
 
+    @Value("${jwt.secret}")
+    private String secretString;
 
-    private final String secretString;
 
-    public JwtUtil(String secretString) {
-        this.secretString = secretString;
-    }
 
-    public JwtUtil() {
-        this.secretString = "defaultSecretKeyPleaseChangeInProductionEnvironment";
-    }
 
     // Lấy signing key từ chuỗi bí mật
     private Key getSigningKey() {
@@ -108,8 +104,6 @@ public class JwtUtil {
         try {
             final String extractedUsername = extractUsername(token);
             return (extractedUsername.equals(username) && !isTokenExpired(token));
-        } catch (SignatureException e) {
-            return false;
         } catch (Exception e) {
             return false;
         }
@@ -127,37 +121,6 @@ public class JwtUtil {
             return false;
         }
     }
-
-    // Tính toán thời gian còn lại của token (milliseconds)
-    public long getTokenRemainingTimeInMillis(String token) {
-        Date expiration = extractExpiration(token);
-        Date now = new Date();
-        return expiration.getTime() - now.getTime();
-    }
-
-    // Trích xuất một claim cụ thể theo tên
-    public Object getClaimFromToken(String token, String claimName) {
-        Claims claims = extractAllClaims(token);
-        return claims.get(claimName);
-    }
-
-    // Tạo token với thời gian hết hạn tùy chỉnh
-    public String generateTokenWithCustomExpiration(String username, long expirationTimeInMillis) {
-        Map<String, Object> claims = new HashMap<>();
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + expirationTimeInMillis);
-
-        return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(username)
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
-                .signWith(getSigningKey())
-                .compact();
-    }
-
-
-
 
 
     public String extractRoleFromHeader(String authHeader) {

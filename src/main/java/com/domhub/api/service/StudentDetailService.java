@@ -29,7 +29,7 @@ public class StudentDetailService {
         Student student = studentRepository.findById(studentId).orElseThrow(() -> new AppException(ErrorCode.STUDENT_NOT_FOUND));
         StudentDTO dto = studentMapper.toDTO(student);
         dto.setRoomRentals(roomRentalService.getAllRoomRentalsByStudentId(studentId).getData());
-        dto.setViolations(violationService.getAllViolationsByStudentId(studentId));
+        dto.setViolations(violationService.getAllViolationsByStudentId(studentId).getData());
         return ApiResponse.success(dto);
     }
 
@@ -42,7 +42,7 @@ public class StudentDetailService {
 
         StudentDTO dto = studentMapper.toDTO(student);
         dto.setRoomRentals(roomRentalService.getAllRoomRentalsByStudentId(student.getId()).getData());
-        dto.setViolations(violationService.getAllViolationsByStudentId(student.getId()));
+        dto.setViolations(violationService.getAllViolationsByStudentId(student.getId()).getData());
         return ApiResponse.success(dto);
     }
 }

@@ -50,8 +50,8 @@ public class RoomBillController {
 
     @PreAuthorize("hasRole('STUDENT')")
     @GetMapping("/student")
-    public ApiResponse<List<RoomBillDTO>> getStudentBills() {
-        return roomBillService.getStudentBills();
+    public ApiResponse<List<RoomBillDTO>> getRoomBills() {
+        return roomBillService.getRoomBills();
 
     }
 

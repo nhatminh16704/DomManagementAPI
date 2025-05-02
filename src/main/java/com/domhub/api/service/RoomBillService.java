@@ -80,14 +80,14 @@ public class RoomBillService {
     private static final int ELECTRIC_UNIT_PRICE = 3000;
 
     public ApiResponse<Void> updateElectricityEnd(ElectricityUpdateRequest request) {
-        if(!roomService.existsById(request.getRoomId())) {
+        if (!roomService.existsById(request.getRoomId())) {
             throw new AppException(ErrorCode.ROOM_NOT_FOUND);
         }
 
         RoomBill bill = roomBillRepository.findByRoomIdAndBillMonth(request.getRoomId(), request.getBillMonth())
                 .orElseThrow(() -> new AppException(ErrorCode.BILLING_NOT_FOUND));
 
-        if(bill.getElectricityStart() > request.getNewEnd()){
+        if (bill.getElectricityStart() > request.getNewEnd()) {
             throw new AppException(ErrorCode.INVALID_ELECTRICITY_END);
         }
 
@@ -106,6 +106,10 @@ public class RoomBillService {
         return bill.map(b -> b.getStatus() == RoomBill.BillStatus.UNPAID).orElse(false);
     }
 
+    public boolean existsById(Integer id) {
+        return roomBillRepository.existsById(id);
+    }
+
     public Optional<RoomBill> findById(Integer id) {
         return roomBillRepository.findById(id);
     }
@@ -114,11 +118,11 @@ public class RoomBillService {
         return roomBillRepository.save(roomBill);
     }
 
-    public ApiResponse<List<RoomBillDTO>> getStudentBills() {
+    public ApiResponse<List<RoomBillDTO>> getRoomBills() {
         String authHeader = httpServletRequest.getHeader("Authorization");
         Integer accountId = jwtUtil.extractAccountIdFromHeader(authHeader);
 
-        accountService.validateAccountExists(accountId, "Account not found");
+        accountService.validateAccountExists(accountId);
 
         Integer studentId = studentService.getStudentIdByAccountId(accountId);
 
@@ -126,7 +130,6 @@ public class RoomBillService {
 
         return ApiResponse.success(roomBillRepository.findAllByRoomId(roomId));
     }
-
 
 
 }

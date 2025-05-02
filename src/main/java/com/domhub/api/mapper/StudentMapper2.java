@@ -19,19 +19,6 @@ public class StudentMapper2 {
         this.violationService = violationService;
     }
 
-    public StudentDTO toDTO(Student student) {
-        StudentDTO studentDTO = new StudentDTO();
-        studentDTO.setStudentCode(student.getStudentCode());
-        studentDTO.setFullName(student.getFullName());
-        studentDTO.setBirthday(student.getBirthday());
-        studentDTO.setGender(student.getGender().toString());
-        studentDTO.setHometown(student.getHometown());
-        studentDTO.setPhoneNumber(student.getPhoneNumber());
-        studentDTO.setEmail(student.getEmail());
-        studentDTO.setClassName(student.getClassName());
-        studentDTO.setRoomRentals(roomRentalMapper2.toDTOList(roomRentalRepository.findByStudentId(student.getId())));
-        studentDTO.setViolations(violationService.getAllViolationsByStudentId(student.getId()));
-        return studentDTO;
-    }
+
 
 }

@@ -3,14 +3,9 @@ package com.domhub.api.service;
 import com.domhub.api.dto.request.StudentRequest;
 import com.domhub.api.dto.request.UpdateProfileRequest;
 import com.domhub.api.dto.response.ApiResponse;
-import com.domhub.api.dto.response.RoomRentalDTO;
-import com.domhub.api.dto.response.StudentDTO;
-import com.domhub.api.dto.response.ViolationDTO;
 import com.domhub.api.exception.AppException;
 import com.domhub.api.exception.ErrorCode;
-import com.domhub.api.mapper.RoomRentalMapper;
 import com.domhub.api.mapper.StudentMapper;
-import com.domhub.api.model.RoomRental;
 import com.domhub.api.model.Student;
 import com.domhub.api.repository.StudentRepository;
 import com.domhub.api.security.JwtUtil;
@@ -22,7 +17,6 @@ import com.domhub.api.mapper.StudentMapper2;
 import com.domhub.api.model.Account;
 import com.domhub.api.dto.request.AccountRequest;
 
-import java.util.Optional;
 import java.util.List;
 
 
@@ -30,7 +24,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StudentService {
     private final StudentRepository studentRepository;
-    private final StudentMapper2 studentMapper2;
     private final AccountService accountService;
     private final HttpServletRequest request;
     private final JwtUtil jwtUtil;
@@ -44,6 +37,13 @@ public class StudentService {
     public ApiResponse<List<Student>> getAllStudents() {
         return ApiResponse.success(studentRepository.findAll());
     }
+
+
+    public boolean existsById(Integer id) {
+        return studentRepository.existsById(id);
+    }
+
+
 
 
     public ApiResponse<Student> getStudentByAccountIdFromStudent() {
@@ -88,7 +88,6 @@ public class StudentService {
 
         return ApiResponse.success("Student created successfully");
     }
-
 
 
     public ApiResponse<Void> updateStudent(Integer id, StudentRequest studentRequest) {

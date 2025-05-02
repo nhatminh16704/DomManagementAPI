@@ -45,6 +45,12 @@ public enum ErrorCode {
     ROLE_NOT_FOUND(4017, "Role not found"),
     STUDENT_NOT_FOUND(4018, "Student not found"),
     STUDENT_CODE_ALREADY_EXISTS(4019, "Student code already exists"),
+    ROOM_RENTAL_NOT_FOUND(4020, "Room rental not found"),
+    ROOM_RENTAL_NOT_VALID_SATUS(4021, "Room rental not valid status"),
+    ROOM_FULL(4022, "Room full"),
+    ROOM_BILL_NOT_FOUND(4023, "Room bill not found"),
+    ROOM_BILL_ALREADY_PAID(4024, "Room bill is already paid"),
+    INVALID_SIGNATURE(4025, "Invalid signature"),
 
 
 

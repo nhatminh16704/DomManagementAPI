@@ -1,7 +1,16 @@
 package com.domhub.api.service;
 
+import com.domhub.api.dto.request.PaymentRequest;
+import com.domhub.api.dto.response.ApiResponse;
+import com.domhub.api.exception.AppException;
+import com.domhub.api.exception.ErrorCode;
+import com.domhub.api.model.RoomBill;
+import com.domhub.api.model.RoomRental;
+import com.domhub.api.repository.RoomRentalRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.URLEncoder;
@@ -9,8 +18,14 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+@RequiredArgsConstructor
 @Service
 public class VNPayService {
+
+    private final RoomService roomService;
+    private final RoomBillService roomBillService;
+    private final RoomRentalRepository roomRentalRepository;
+    private final RoomRentalService roomRentalService;
 
     @Value("${vnpay.pay-url}")
     private String vnp_PayUrl;
@@ -120,6 +135,76 @@ public class VNPayService {
         // Compare with the received SecureHash
         return receivedSecureHash != null && receivedSecureHash.equalsIgnoreCase(calculatedHash);
     }
+
+    public ApiResponse<String> createRoomRentalPayment(PaymentRequest request) {
+        roomService.reserveRoom(request.getIdRef());
+        String paymentUrl = createPaymentUrl(
+                request.getAmount(),
+                request.getBankCode(),
+                request.getIdRef(),
+                "RENTAL"
+        );
+        return ApiResponse.success(paymentUrl, "Payment URL generated successfully");
+    }
+
+    public ApiResponse<String> createBillPayment(PaymentRequest request) {
+        if(!roomBillService.existsById(request.getIdRef())) {
+            throw new AppException(ErrorCode.ROOM_BILL_NOT_FOUND);
+        }
+
+        if (!roomBillService.isBillUnpaid(request.getIdRef())) {
+            throw new AppException(ErrorCode.ROOM_BILL_ALREADY_PAID);
+        }
+
+        String paymentUrl = createPaymentUrl(
+                request.getAmount(),
+                request.getBankCode(),
+                request.getIdRef(),
+                "BILL"
+        );
+
+        return ApiResponse.success(paymentUrl, "Payment URL generated successfully");
+    }
+
+    public String handleVnPayReturn(Map<String, String> params) {
+        if (!validateSignature(params)) {
+            throw new AppException(ErrorCode.INVALID_SIGNATURE);
+        }
+
+        String rawTxnRef = params.get("vnp_TxnRef");
+        boolean isSuccess = "00".equals(params.get("vnp_ResponseCode")) &&
+                "00".equals(params.get("vnp_TransactionStatus"));
+
+        if (rawTxnRef.startsWith("BILL_")) {
+            int billId = Integer.parseInt(rawTxnRef.replace("BILL_", ""));
+            RoomBill roomBill = roomBillService.findById(billId)
+                    .orElseThrow(() -> new RuntimeException("Bill not found"));
+
+            if (isSuccess) {
+                roomBill.setStatus(RoomBill.BillStatus.PAID);
+                roomBillService.update(roomBill);
+                return "http://localhost:3000/bills?status=success";
+            } else {
+                return "http://localhost:3000/bills?status=fail";
+            }
+
+        } else if (rawTxnRef.startsWith("RENTAL_")) {
+            int rentId = Integer.parseInt(rawTxnRef.replace("RENTAL_", ""));
+            RoomRental rental = roomRentalService.getRoomRentalById(rentId);
+
+            if (isSuccess) {
+                rental.setStatus(RoomRental.Status.ACTIVE);
+                roomRentalRepository.save(rental);
+                return String.format("http://localhost:3000/rooms/%d?status=success", rental.getRoom().getId());
+            } else {
+                roomService.cancelRoomRental(rentId);
+                return String.format("http://localhost:3000/rooms/%d?status=failed", rental.getRoom().getId());
+            }
+        }
+
+        throw new IllegalArgumentException("Unknown transaction reference");
+    }
+
 
 }
 

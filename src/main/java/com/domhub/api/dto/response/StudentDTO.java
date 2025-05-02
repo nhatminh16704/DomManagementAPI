@@ -20,7 +20,7 @@ public class StudentDTO {
     private String email;
     private String hometown;
     private String className;
-    private List<RoomRentalDTO> roomRentals; // Danh sách thuê phòng (gồm lịch sử)
-    private List<ViolationDTO> violations;      // Danh sach sai pham do Staff bao
+    private List<RoomRentalDTO> roomRentals;
+    private List<Violation> violations;
 }
 

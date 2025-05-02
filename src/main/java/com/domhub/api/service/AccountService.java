@@ -107,22 +107,20 @@ public class AccountService {
     }
 
     public ApiResponse<String> login(LoginRequest request) {
-        Optional<Account> accountOptional = accountRepository.findByUserName(request.getUserName());
-        if (accountOptional.isPresent()) {
-            Account account = accountOptional.get();
-            if (passwordEncoder.matches(request.getPassword(), account.getPassword())) {
-                // Tạo JWT token với thông tin bổ sung
-                Map<String, Object> claims = new HashMap<>();
-                claims.put("id", account.getId());
-                claims.put("role", account.getRole().getRoleName());  // Giả sử bạn có đối tượng `Role` trong `Account`
+        Account account = accountRepository.findByUserName(request.getUserName()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (passwordEncoder.matches(request.getPassword(), account.getPassword())) {
+            // Tạo JWT token với thông tin bổ sung
+            Map<String, Object> claims = new HashMap<>();
+            claims.put("id", account.getId());
+            claims.put("role", account.getRole().getRoleName());
 
-                // Tạo token JWT
-                String token = jwtUtil.generateToken(request.getUserName(), claims);
-                return ApiResponse.success(token, "Login successfully");
-            }
-            throw new AppException(ErrorCode.WRONG_PASSWORD);
+            // Tạo token JWT
+            String token = jwtUtil.generateToken(request.getUserName(), claims);
+            return ApiResponse.success(token, "Login successfully");
         }
-        throw new AppException(ErrorCode.USER_NOT_FOUND);
+        throw new AppException(ErrorCode.WRONG_PASSWORD);
+
+
     }
 
     public void deleteAccount(Integer id) {
