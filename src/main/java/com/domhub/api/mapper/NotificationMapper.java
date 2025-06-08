@@ -18,7 +18,7 @@ public interface NotificationMapper {
     List<NotificationDTO> toDTOs(List<Notification> notifications);
 
     @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "createdDate", expression = "java(LocalDate.now())")
+    @Mapping(target = "createdDate", expression = "java(LocalDateTime.now())")
     @Mapping(target = "type", expression = "java(Notification.NotificationType.valueOf(notificationRequest.getType()))")
     Notification toEntity(NotificationRequest notificationRequest);
 

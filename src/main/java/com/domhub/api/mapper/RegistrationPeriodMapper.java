@@ -9,6 +9,5 @@ import org.mapstruct.Mapping;
 public interface RegistrationPeriodMapper {
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "isActive", ignore = true)
     RegistrationPeriod toEntity(RegistrationPeriodRequest registrationPeriodRequest);
 }

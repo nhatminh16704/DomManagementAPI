@@ -26,33 +26,16 @@ public class RegistrationPeriodService {
     private final RegistrationPeriodMapper registrationPeriodMapper;
 
     public ApiResponse<List<RegistrationPeriodDTO>> getAll() {
-        return ApiResponse.success(registrationPeriodRepository.findAllWithCreatorName().stream()
-                .sorted((a, b) -> Long.compare(b.getId(), a.getId()))
-                .collect(Collectors.toList()));
+        return ApiResponse.success(registrationPeriodRepository.findAllWithCreatorName());
     }
 
 
     public ApiResponse<Void> create(RegistrationPeriodRequest request) {
 
         RegistrationPeriod registrationPeriod = registrationPeriodMapper.toEntity(request);
-        registrationPeriod.setIsActive(java.time.LocalDateTime.now().isAfter(registrationPeriod.getStartDate()));
         RegistrationPeriod saved = registrationPeriodRepository.save(registrationPeriod);
 
         return ApiResponse.success("Created successfully with ID: " + saved.getId());
     }
 
-    @Scheduled(cron = "0 0 0 * * *") // Chạy mỗi ngày lúc 00:00
-    public void updateRegistrationPeriodStatuses() {
-        LocalDateTime now = LocalDateTime.now();
-        List<RegistrationPeriod> periods = registrationPeriodRepository.findAll();
-
-        for (RegistrationPeriod period : periods) {
-            boolean isNowActive = !now.isBefore(period.getStartDate()) && !now.isAfter(period.getEndDate());
-
-            if (period.getIsActive() != isNowActive) {
-                period.setIsActive(isNowActive);
-                registrationPeriodRepository.save(period);
-            }
-        }
-    }
 }

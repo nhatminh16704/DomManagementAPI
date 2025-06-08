@@ -33,22 +33,22 @@ public class MessageController {
         return messageService.createMessage(messageRequest);
     }
 
-    @GetMapping("/users")
+    @GetMapping("/users/search")
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<List<UserSearchDTO>> searchUsers(@RequestParam @NotBlank String keyword) {
+    public ApiResponse<List<UserSearchDTO>> searchUsers(@RequestParam String keyword) {
         return messageService.searchUsers(keyword);
     }
 
-    @GetMapping("/room")
+    @GetMapping("/room/search")
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<List<SearchRoomDTO>> searchRoom(@RequestParam @NotBlank String keyword) {
+    public ApiResponse<List<SearchRoomDTO>> searchRoom(@RequestParam String keyword) {
         return messageService.searchRoom(keyword);
     }
 
 
-    @GetMapping("/account/{accountId}")
-    public ApiResponse<List<MessageDTO>> getMessagesByAccountId(@PathVariable @Min(1) Integer accountId) {
-        return messageService.getMessagesByAccountId(accountId);
+    @GetMapping
+    public ApiResponse<List<MessageDTO>> getMessagesByAccountId() {
+        return messageService.getMessagesByAccountId();
     }
 
 

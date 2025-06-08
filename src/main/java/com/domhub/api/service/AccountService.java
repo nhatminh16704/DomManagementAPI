@@ -107,7 +107,7 @@ public class AccountService {
     }
 
     public ApiResponse<String> login(LoginRequest request) {
-        Account account = accountRepository.findByUserName(request.getUserName()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        Account account = accountRepository.findByUserName(request.getUsername()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         if (passwordEncoder.matches(request.getPassword(), account.getPassword())) {
             // Tạo JWT token với thông tin bổ sung
             Map<String, Object> claims = new HashMap<>();
@@ -115,7 +115,7 @@ public class AccountService {
             claims.put("role", account.getRole().getRoleName());
 
             // Tạo token JWT
-            String token = jwtUtil.generateToken(request.getUserName(), claims);
+            String token = jwtUtil.generateToken(request.getUsername(), claims);
             return ApiResponse.success(token, "Login successfully");
         }
         throw new AppException(ErrorCode.WRONG_PASSWORD);

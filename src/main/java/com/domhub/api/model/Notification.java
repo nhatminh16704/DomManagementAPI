@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "notification")
@@ -29,7 +29,7 @@ public class Notification {
     private String content;
 
     @Column(nullable = false)
-    private LocalDate createdDate;
+    private LocalDateTime createdDate;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

@@ -40,7 +40,7 @@ public class RoomBillService {
     }
 
 
-    public ApiResponse<List<RoomBillDTO>> getAllByMonthAndStatus(LocalDate billMonth, String status) {
+    public ApiResponse<List<RoomBillDTO>> getAllByMonthAndStatus(LocalDate billMonth, RoomBill.BillStatus status) {
         return ApiResponse.success(roomBillRepository.findAllByBillMonthAndStatus(billMonth, status));
     }
 

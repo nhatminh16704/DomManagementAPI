@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import com.domhub.api.dto.request.RoomRentalRequest;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -77,7 +78,7 @@ public class RoomRentalService {
             throw new AppException(ErrorCode.CANT_REGISTER_ROOM, "Can't register room in this block");
         }
 
-        if (!registrationPeriodRepository.existsByIsActiveTrue()) {
+        if (!registrationPeriodRepository.existsByCurrentDateBetweenStartDateAndEndDate(LocalDateTime.now())) {
             throw new AppException(ErrorCode.NOT_IN_REGISTRATION_PERIOD);
         }
 

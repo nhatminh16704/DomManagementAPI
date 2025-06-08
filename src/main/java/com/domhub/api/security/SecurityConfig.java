@@ -2,8 +2,10 @@ package com.domhub.api.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -36,11 +38,11 @@ public class SecurityConfig {
         http
                 .securityMatcher("/**") // Áp dụng cho tất cả các request
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/auth/**").permitAll() // Cho phép login/signup
+                        .requestMatchers(HttpMethod.POST,"/auth/**").permitAll() // Cho phép login/signup
                         .requestMatchers("/vnpay/return/**").permitAll()
                         .anyRequest().authenticated() // Các request khác cần xác thực (JWT sau)
                 )
-                .csrf(csrf -> csrf.disable()) // Tắt CSRF cho API REST
+                .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> {
                     cors.configurationSource(corsConfigurationSource());
                 })

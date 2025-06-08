@@ -85,7 +85,9 @@ public class MessageService {
         return ApiResponse.success("Message created successfully");
     }
 
-    public ApiResponse<List<MessageDTO>> getMessagesByAccountId(Integer accountId) {
+    public ApiResponse<List<MessageDTO>> getMessagesByAccountId() {
+        String token = httpServletRequest.getHeader("Authorization");
+        Integer accountId = jwtUtil.extractAccountIdFromHeader(token);
         accountService.validateAccountExists(accountId, "Account not found");
         return ApiResponse.success(messageToRepository.findMessagesByReceiver(accountId));
     }

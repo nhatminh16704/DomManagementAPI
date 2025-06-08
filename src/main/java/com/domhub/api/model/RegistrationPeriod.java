@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "registrationperiod")
+@Table(name = "registration_period")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -15,9 +15,17 @@ public class RegistrationPeriod {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long creator;
+
+    @Column(nullable = false)
+    private Integer creator;
+
+    @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false)
     private LocalDateTime startDate;
+
+    @Column(nullable = false)
     private LocalDateTime endDate;
-    private Boolean isActive;
+
 }

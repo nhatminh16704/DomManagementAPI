@@ -1,6 +1,6 @@
 package com.domhub.api.dto.response;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,6 +14,6 @@ public class NotificationDTO {
     private String title;
     private String content;
     private String type;
-    private LocalDate createDate;
+    private LocalDateTime createdDate;
     private String createdBy;
 }

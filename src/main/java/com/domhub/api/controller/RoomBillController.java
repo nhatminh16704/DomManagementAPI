@@ -35,7 +35,8 @@ public class RoomBillController {
 
     ) {
         if (month != null && status != null) {
-            return roomBillService.getAllByMonthAndStatus(month, status);
+            RoomBill.BillStatus billStatus = RoomBill.BillStatus.valueOf(status);
+            return roomBillService.getAllByMonthAndStatus(month, billStatus);
         }
         return roomBillService.getAll();
     }
