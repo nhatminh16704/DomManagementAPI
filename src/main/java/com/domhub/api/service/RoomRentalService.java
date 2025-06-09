@@ -89,21 +89,35 @@ public class RoomRentalService {
 
         RoomRental rental = new RoomRental();
         rental.setStudentId(student.getId());
-        LocalDate today = LocalDate.now();
-        int currentYear = LocalDate.now().getYear();
-        if (today.getMonthValue() < 6) {
-            rental.setStartDate(LocalDate.of(currentYear, 1, 1));
-            rental.setEndDate(LocalDate.of(currentYear, 6, 1));
-        } else {
-            rental.setStartDate(LocalDate.of(currentYear, 6, 1));
-            rental.setEndDate(LocalDate.of(currentYear, 12, 1));
-        }
-        rental.setRoom(room);
-        rental.setPrice(request.getPrice());
-        rental.setStatus(RoomRental.Status.UNPAID);
-        RoomRental tmp = roomRentalRepository.save(rental);
 
+        LocalDate today = LocalDate.now();
+        int currentYear = today.getYear();
+        int currentMonth = today.getMonthValue();
+        double price = request.getPrice();
+
+
+        rental.setStartDate(today);
+
+        LocalDate endDate;
+        if (currentMonth < 6) {
+            endDate = LocalDate.of(currentYear, 5, 31);
+            price *= 5;
+        } else if (currentMonth < 8) {
+            endDate = LocalDate.of(currentYear, 7, 31);
+            price *= 2;
+        } else {
+            endDate = LocalDate.of(currentYear, 12, 31);
+            price *= 5;
+        }
+
+        rental.setEndDate(endDate);
+        rental.setRoom(room);
+        rental.setPrice(price);
+        rental.setStatus(RoomRental.Status.UNPAID);
+
+        RoomRental tmp = roomRentalRepository.save(rental);
         return ApiResponse.success(tmp.getId(), "Room rental created successfully");
+
     }
 
     public ApiResponse<List<RoomRentalDTO>> getAllRoomRentalsByStudentId(Integer studentId) {

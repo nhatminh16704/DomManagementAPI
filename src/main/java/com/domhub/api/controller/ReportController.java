@@ -22,6 +22,7 @@ public class ReportController {
 
     private final ReportService reportService;
 
+
     @PostMapping
     public ApiResponse<Void> createReport(@RequestBody @Valid ReportRequest reportRequest) {
         return reportService.createReport(reportRequest);
