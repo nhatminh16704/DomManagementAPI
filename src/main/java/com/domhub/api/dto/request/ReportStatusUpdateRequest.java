@@ -9,6 +9,6 @@ import lombok.Setter;
 @Getter
 public class ReportStatusUpdateRequest {
 
-    @Pattern(regexp = "PENDING|INPROGRESS|RESOLVED", message = "Status must be one of: PENDING, IN_PROGRESS, RESOLVED")
+    @Pattern(regexp = "PENDING|INPROGRESS|RESOLVED", message = "Status must be one of: PENDING, INPROGRESS, RESOLVED")
     private String status;
 }
