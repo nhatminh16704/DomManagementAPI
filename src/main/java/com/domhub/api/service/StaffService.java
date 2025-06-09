@@ -89,6 +89,7 @@ public class StaffService {
         Account account = accountService.createAccount(accountRequest);
         Staff staff = staffMapper.toEntity(staffRequest);
         staff.setAccountId(account.getId());
+        staffRepository.save(staff);
         return ApiResponse.success("Staff created successfully");
     }
 

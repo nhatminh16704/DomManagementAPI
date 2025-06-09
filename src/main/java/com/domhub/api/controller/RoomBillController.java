@@ -13,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -43,10 +44,18 @@ public class RoomBillController {
 
 
 
+
+
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/electricity")
     public ApiResponse<Void> updateElectricity(@RequestBody @Valid ElectricityUpdateRequest request) {
         return roomBillService.updateElectricityEnd(request);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/monthly-income")
+    public ApiResponse<List<BigDecimal>> updateElectricity() {
+        return roomBillService.getMonthlyIncome();
     }
 
     @PreAuthorize("hasRole('STUDENT')")

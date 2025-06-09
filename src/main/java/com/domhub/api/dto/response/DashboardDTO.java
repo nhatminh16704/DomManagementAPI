@@ -12,6 +12,7 @@ public class DashboardDTO {
     private Long roomCount;
     private Long studentCount;
     private Long staffCount;
+    private Long notificationCount;
     private Double revenue;
 
     private Long totalRoomCapacity;

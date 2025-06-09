@@ -13,6 +13,7 @@ public interface RoomMapper {
 
     @Mapping(source = "block.type", target = "blockType")
     @Mapping(source = "typeRoom.name", target = "typeRoom")
+    @Mapping(source = "typeRoom.price", target = "price")
     RoomDTO toDTO(Room room);
 
     List<RoomDTO> toDTOs(List<Room> rooms);

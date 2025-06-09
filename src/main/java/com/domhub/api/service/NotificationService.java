@@ -27,6 +27,9 @@ public class NotificationService {
     private final JwtUtil jwtUtil;
     private final AccountService accountService;
 
+    public Long count() {
+            return notificationRepository.count();
+        }
 
     public ApiResponse<List<NotificationDTO>> getAllNotifications() {
         List<Notification> notifications = notificationRepository.findAll();

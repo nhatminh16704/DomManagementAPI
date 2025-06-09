@@ -131,6 +131,26 @@ public class RoomBillService {
         return ApiResponse.success(roomBillRepository.findAllByRoomId(roomId));
     }
 
+    public ApiResponse<List<BigDecimal>> getMonthlyIncome() {
+        List<Object[]> monthlyData = roomBillRepository.getMonthlyIncomeForCurrentYear();
 
+        // Initialize all 12 months with zero
+        BigDecimal[] monthlyIncome = new BigDecimal[12];
+        for (int i = 0; i < 12; i++) {
+            monthlyIncome[i] = BigDecimal.ZERO;
+        }
+
+        // Fill in the data from the database
+        for (Object[] data : monthlyData) {
+            LocalDate month = (LocalDate) data[0];
+            BigDecimal amount = (BigDecimal) data[1];
+
+            // Month in LocalDate is 1-based, so we subtract 1 for array index
+            int monthIndex = month.getMonthValue() - 1;
+            monthlyIncome[monthIndex] = amount;
+        }
+
+        return ApiResponse.success(List.of(monthlyIncome));
+    }
 }
 

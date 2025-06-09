@@ -18,6 +18,9 @@ public class TypeRoom {
     @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
+    private Double price;
+
     private String description;
 
 }
