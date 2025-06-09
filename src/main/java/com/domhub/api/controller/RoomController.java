@@ -12,7 +12,7 @@ import com.domhub.api.dto.response.RoomDetailDTO;
 import java.util.List;
 
 @RestController
-@PreAuthorize("hasAnyRole('ADMIN', 'STUDENT')")
+@PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'STUDENT')")
 @RequestMapping("/rooms")
 public class RoomController {
     private final RoomService roomService;
